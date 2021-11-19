@@ -39,7 +39,7 @@ const Actions = styled.div`
 `;
 
 export default ({
-  heading = "Find Meals Near You",
+  heading = "Find Meals Near You!",
 }) => {
   const buttonRoundedCss = tw`rounded-full`;
   const navLinks = [
