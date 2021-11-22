@@ -5,6 +5,6 @@
     "rds_password" : "cis550group",
     "rds_db": "business",
     "server_host": "127.0.0.1",
-    "server_port":"8080"
-
+    "server_port":"8080", 
+    "sesssion_secret": "392f41fadaf670da05d5b4c081becfbf40b58eddffb1d7ce33dbd19d699ec060"
 }
