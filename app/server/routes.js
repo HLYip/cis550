@@ -1,4 +1,4 @@
- const connection = require('./connectDB')
+const connection = require('./connectDB')
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport')
 const { hashUserPassword } = require('./utils')
