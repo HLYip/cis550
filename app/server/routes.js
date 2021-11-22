@@ -13,7 +13,7 @@ async function signup(req, res) {
             connection.query(`SELECT * FROM Users WHERE username = '${username}'`,  async function(err,rows) {
                 if (err) return res.status(500).json({ description: err });
                 if (rows.length) {
-                    return res.status(409).json({ description: 'Username has already taken' }); 
+                    return res.status(409).json({ description: 'Username has already been taken' }); 
                 } 
             
                 // all is well, insert this user information
@@ -28,7 +28,7 @@ async function signup(req, res) {
                 })
             });
         } catch (e) {
-            res.status(500).json({ description: 'Internal Server Error for unforeseen reason' });
+            res.status(500).json({ description: e });
         }
     }
 }
