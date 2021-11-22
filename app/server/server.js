@@ -13,6 +13,11 @@ const app = express();
 app.use(cors({
     origin: '*'
 }));
+
+
+
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -36,8 +41,10 @@ app.post('/login', [
     check('password').trim().isLength({ min: 6, max: 18 }).escape(),
 ], inputValidatedAndSanitized, routes.login)
 
+// Route state information 
+app.get('/stateinfo',routes.stateinfo)
 
-
+app.get('/restlocation',routes.restlocation)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
