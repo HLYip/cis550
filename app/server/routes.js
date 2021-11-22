@@ -15,14 +15,7 @@ connection.connect();
 
 
 // Route 1 (handler)
-async function hello(req, res) {
-    // a GET request to /hello?name=Steve
-    if (req.query.name) {
-        res.send(`Hello, ${req.query.name}! Welcome to the FIFA server!`)
-    } else {
-        res.send(`Hello! Welcome to the FIFA server!`)
-    }
-}
+
 
 async function stateinfo(req,res){
 
@@ -137,8 +130,6 @@ async function restlocation (req, res){
 
 
 
-
-
     
 const connection = require('./connectDB')
 const { v4: uuidv4 } = require('uuid');
@@ -206,7 +197,6 @@ async function login(req, res, next) {
 module.exports = {
     signup,
     login,
-    hello,
     stateinfo,
     restlocation
 }
