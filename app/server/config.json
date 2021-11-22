@@ -1,10 +1,10 @@
 {
-    "rds_host": "database-1.csegafoholtr.us-east-2.rds.amazonaws.com",
+    "rds_host": "cis550-group.cul4jj4ytotz.us-east-1.rds.amazonaws.com",
     "rds_port": "3306",
     "rds_user": "admin",
-    "rds_password" : "admin227",
-    "rds_db": "FIFA",
+    "rds_password" : "cis550group",
+    "rds_db": "business",
     "server_host": "127.0.0.1",
-    "server_port":"8080"
-
+    "server_port":"8080", 
+    "sesssion_secret": "392f41fadaf670da05d5b4c081becfbf40b58eddffb1d7ce33dbd19d699ec060"
 }

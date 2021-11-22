@@ -1,152 +1,67 @@
-const config = require('./config.json')
-const mysql = require('mysql');
-const e = require('express');
+const connection = require('./connectDB')
+const { v4: uuidv4 } = require('uuid');
+const passport = require('passport')
+const { hashUserPassword } = require('./utils')
 
-// TODO: fill in your connection details here
-const connection = mysql.createConnection({
-    host: config.rds_host,
-    user: config.rds_user,
-    password: config.rds_password,
-    port: config.rds_port,
-    database: config.rds_db
-});
-connection.connect();
-
-
-// ********************************************
-//            SIMPLE ROUTE EXAMPLE
-// ********************************************
-
-// Route 1 (handler)
-async function hello(req, res) {
-    // a GET request to /hello?name=Steve
-    if (req.query.name) {
-        res.send(`Hello, ${req.query.name}! Welcome to the FIFA server!`)
+// authorization - signup
+async function signup(req, res) {
+    if (!req.body.username || !req.body.password || !req.body.prefer_health) {
+        res.status(400).json({ description: 'Invalid input' });
     } else {
-        res.send(`Hello! Welcome to the FIFA server!`)
+        try {
+            const { username, password, prefer_health } = req.body;
+            connection.query(`SELECT * FROM Users WHERE username = '${username}'`,  async function(err,rows) {
+                if (err) return res.status(500).json({ description: err });
+                if (rows.length) {
+                    return res.status(409).json({ description: 'Username has already taken' }); 
+                } 
+            
+                // all is well, insert this user information
+                user_id = uuidv4(); // generate a random UUID for this user
+                hash_password = await hashUserPassword(password)
+                connection.query(`
+                    INSERT INTO Users (user_id, username, password, prefer_health)
+                    VALUES ('${user_id}', '${username}', '${hash_password}', ${prefer_health})
+                `, function(err, _) {
+                    if (err) return res.status(500).json({ description: err });
+                    return res.status(200).json({ description: 'Success' })
+                })
+            });
+        } catch (e) {
+            res.status(500).json({ description: 'Internal Server Error for unforeseen reason' });
+        }
     }
 }
 
-
-// ********************************************
-//                  WARM UP 
-// ********************************************
-
-// Route 2 (handler)
-async function jersey(req, res) {
-    const colors = ['red', 'blue', 'white']
-    const jersey_number = Math.floor(Math.random() * 20) + 1
-    const name = req.query.name ? req.query.name : "player"
-
-    if (req.params.choice === 'number') {
-        // TODO: TASK 1: inspect for issues and correct 
-        res.json({ message: `Hello, ${name}!`, lucky_number: jersey_number })
-    } else if (req.params.choice === 'color') {
-        var lucky_color_index = Math.floor(Math.random() * 2) + 1;
-        // TODO: TASK 2: change this or any variables above to return only 'red' or 'blue' at random (go Quakers!)
-        res.json({ message: `Hello, ${name}!`, jersey_color: colors[lucky_color_index] })
-    } else {
-        // TODO: TASK 3: inspect for issues and correct
-        res.json({ message: `Hello,${name}, we like your jersey!` })
-    }
+// authorization - login
+async function login(req, res, next) {
+    passport.authenticate('login', (err, user, info) => {
+        if (err) {
+          res.status(500).json({ description: err });
+        } else {
+          const { message } = info;
+          if (message == 'Incorrect username.' || message == 'Incorrect password.') {
+            res.status(400).json({ description: message });
+          } else {
+            req.logIn(user, (error) => {
+              if (error) {
+                return next(error);
+              }
+              return res.status(200).json({
+                description: message,
+                authenticated: true,
+                username: user.username,
+                userId: user.user_id,
+                prefer_health: user.prefer_health
+              });
+            });
+          }
+        }
+      })(req, res, next);
 }
 
-// ********************************************
-//               GENERAL ROUTES
-// ********************************************
-
-
-// Route 3 (handler)
-async function all_matches(req, res) {
-    // TODO: TASK 4: implement and test, potentially writing your own (ungraded) tests
-    // We have partially implemented this function for you to 
-    // parse in the league encoding - this is how you would use the ternary operator to set a variable to a default value
-    // we didn't specify this default value for league, and you could change it if you want! 
-    // in reality, league will never be undefined since URLs will need to match matches/:league for the request to be routed here... 
-    const league = req.params.league ? req.params.league : 'D1'
-    // use this league encoding in your query to furnish the correct results
-
-    if (req.query.page && !isNaN(req.query.page)) {
-        // This is the case where page is defined.
-        // The SQL schema has the attribute OverallRating, but modify it to match spec! 
-        // TODO: query and return results here:
-   
-    } else {
-        // we have implemented this for you to see how to return results by querying the database
-        connection.query(`SELECT MatchId, Date, Time, HomeTeam AS Home, AwayTeam AS Away, FullTimeGoalsH AS HomeGoals, FullTimeGoalsA AS AwayGoals  
-        FROM Matches 
-        WHERE Division = '${league}'
-        ORDER BY HomeTeam, AwayTeam`, function (error, results, fields) {
-
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-    }
-}
-
-// Route 4 (handler)
-async function all_players(req, res) {
-    // TODO: TASK 5: implement and test, potentially writing your own (ungraded) tests
-    
-
-    return res.json({error: "Not implemented"})
-}
-
-
-// ********************************************
-//             MATCH-SPECIFIC ROUTES
-// ********************************************
-
-// Route 5 (handler)
-async function match(req, res) {
-    // TODO: TASK 6: implement and test, potentially writing your own (ungraded) tests
-    return res.json({error: "Not implemented"})
-}
-
-// ********************************************
-//            PLAYER-SPECIFIC ROUTES
-// ********************************************
-
-// Route 6 (handler)
-async function player(req, res) {
-    // TODO: TASK 7: implement and test, potentially writing your own (ungraded) tests
-    return res.json({error: "Not implemented"})
-}
-
-
-// ********************************************
-//             SEARCH ROUTES
-// ********************************************
-
-// Route 7 (handler)
-async function search_matches(req, res) {
-    // TODO: TASK 8: implement and test, potentially writing your own (ungraded) tests
-    // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
-
-    return res.json({error: "Not implemented"})
-
-
-}
-
-// Route 8 (handler)
-async function search_players(req, res) {
-    // TODO: TASK 9: implement and test, potentially writing your own (ungraded) tests
-    // IMPORTANT: in your SQL LIKE matching, use the %query% format to match the search query to substrings, not just the entire string
-    
-    return res.json({error: "Not implemented"})
-}
 
 module.exports = {
-    hello,
-    jersey,
-    all_matches,
-    all_players,
-    match,
-    player,
-    search_matches,
-    search_players
+    signup,
+    login
 }

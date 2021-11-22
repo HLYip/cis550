@@ -1,41 +1,40 @@
 const express = require('express');
-const mysql = require('mysql');
-
+const cors = require('cors');
+const passport = require('passport')
+const session = require("express-session");
+const { check } = require('express-validator');
 
 const routes = require('./routes')
 const config = require('./config.json')
-const cors = require('cors');
-
+const { inputValidatedAndSanitized } = require('./utils')
+require('./appPassport')(passport);
 
 const app = express();
 app.use(cors({
     origin: '*'
 }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(session({
+    secret: config.sesssion_secret,
+    resave: false,
+    saveUninitialized: false,
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
-// Route 1 - register as GET 
-app.get('/hello', routes.hello)
 
-// Route 2 - register as GET 
-app.get('/jersey/:choice', routes.jersey)
-
-// Route 3 - register as GET 
-app.get('/matches/:league', routes.all_matches)
-
-// Route 4 - register as GET 
-app.get('/players', routes.all_players)
-
-// Route 5 - register as GET 
-app.get('/match', routes.match)
-
-// Route 6 - register as GET 
-app.get('/player', routes.player)
-
-// Route 7 - register as GET 
-app.get('/search/matches', routes.search_matches)
-
-// Route 8 - register as GET 
-app.get('/search/players', routes.search_players)
-
+// Route 1 - register as POST
+app.post('/signup', [
+    check('username').trim().isLength({ min: 1 }).escape(),
+    check('password').trim().isLength({ min: 6, max: 18 }).escape(),
+    check('prefer_health').trim().isBoolean().escape()
+], inputValidatedAndSanitized, routes.signup)
+// Route 2 - login as POST
+app.post('/login', [
+    check('username').trim().isLength({ min: 1 }).escape(),
+    check('password').trim().isLength({ min: 6, max: 18 }).escape(),
+], inputValidatedAndSanitized, routes.login)
 
 
 
