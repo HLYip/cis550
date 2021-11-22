@@ -41,9 +41,6 @@ app.post('/login', [
     check('password').trim().isLength({ min: 6, max: 18 }).escape(),
 ], inputValidatedAndSanitized, routes.login)
 
-
-
-
 // Route state information 
 app.get('/stateinfo',routes.stateinfo)
 
