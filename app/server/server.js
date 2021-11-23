@@ -13,11 +13,6 @@ const app = express();
 app.use(cors({
     origin: '*'
 }));
-
-
-
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -48,6 +43,14 @@ app.get('/restlocation',routes.restlocation)
 
 // Route today's recommendation information 
 app.get('/todayrecommendation',routes.todayrecommendation)
+
+app.get('/search', routes.search)
+
+app.post('/like', routes.addLike)
+
+app.delete('/like', routes.removeLike)
+
+app.get('/likes/:username', routes.getLikedRest)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);

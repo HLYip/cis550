@@ -158,6 +158,131 @@ async function restlocation (req, res){
     }
 }
 
+//TODO: add attributes filter and like indicator
+async function search(req, res) {
+    if (!req.query.city) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        const city = req.query.city
+        const category = req.query.category? req.query.category : ''
+        const pagesize = req.query.pagesize ? req.query.pagesize : 10
+        const page = req.query.page? req.query.page : 1
+        const offset = pagesize * (page - 1) 
+        const query = `
+        WITH health_score AS (
+            SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS score,
+                   ROUND(PERCENT_RANK() over (ORDER BY ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4)), 2) AS score_rank,
+                   county, state_abbr
+            FROM Health
+            GROUP BY county, state
+        ),
+        rest_score AS (
+            SELECT business_id, name, address, city, state, zipcode, r_lat AS latitude, r_long AS longitude,
+                stars, ROUND(PERCENT_RANK() over (ORDER BY stars), 2) AS stars_rank,
+                review_count, ROUND(PERCENT_RANK() over (ORDER BY review_count), 2) AS review_rank,
+                is_open, hours, county
+            FROM Restaurants R
+            NATURAL JOIN Categories
+            WHERE city='${city}' AND category like '%${category}%'
+        )
+        SELECT  business_id, name, address, city, state, zipcode, latitude, longitude,
+                stars, review_count, is_open, hours
+        FROM rest_score R
+        JOIN health_score ON R.county = health_score.county AND R.state = health_score.state_abbr
+        ORDER BY (stars*0.3+score_rank*0.6+review_rank*0.1) DESC
+        LIMIT ${offset}, ${pagesize};`
+        connection.query(query, function(error, results, fields) {
+            if (error) {
+                res.status(500).json({ description: error })
+            } else if (results) {
+                res.status(200).json({ results: results })
+            }
+        })
+    }
+}
+
+async function addLike(req, res) {
+    if (!req.body.business_id || !req.body.user_id) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        const business_id = req.body.business_id
+        const user_id = req.body.user_id
+        connection.query(`
+        SELECT * FROM Likes
+        WHERE user_id = '${user_id}' AND business_id = '${business_id}'
+        `, function(error, results) {
+            if (error) {
+                res.status(500).json({ error: error })
+            } else if (results.length > 0) {
+                res.status(409).json({ description: 'Duplicate' })
+            } else {
+                connection.query(`
+                    INSERT INTO Likes (user_id, business_id)
+                    VALUES ('${user_id}', '${business_id}')
+                `, function(error, _) {
+                    if (error) {
+                        res.status(500).json({ description: error })
+                    } else {
+                        res.status(200).json({ description: 'Success'})
+                    }
+                })
+            }
+        })
+    }
+}
+
+async function removeLike(req, res) {
+    if (!req.body.business_id || !req.body.user_id) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        const business_id = req.body.business_id
+        const user_id = req.body.user_id
+        connection.query(`
+        SELECT * FROM Likes
+        WHERE user_id = '${user_id}' AND business_id = '${business_id}'
+        `, function(error, results) {
+            if (error) {
+                res.status(500).json({ description: error })
+            } else if (results.length == 0) {
+                res.status(404).json({ description: 'Not found' })
+            } else {
+                connection.query(`
+                    DELETE FROM Likes
+                    WHERE user_id = '${user_id}' AND business_id = '${business_id}'
+                `, function(error, _) {
+                    if (error) {
+                        res.status(500).json({ description: error })
+                    } else {
+                        res.status(200).json({ description: 'Success'})
+                    }
+                })
+            }
+        })
+    }
+}
+
+async function getLikedRest(req, res) {
+    if (!req.params.username) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        const username = req.params.username
+        connection.query(`
+        SELECT business_id FROM Users
+        NATURAL JOIN Likes
+        WHERE username = '${username}'
+        `, function(error, results) {
+            if (error) {
+                res.status(500).json({ description: error })
+            } else if (results.length == 0) {
+                res.status(404).json({ description: 'Not found' })
+            } else {
+                res.status(200).json({ results: results})
+            }
+        })
+    }
+}
+
+
 async function todayrecommendation (req, res){
     
     const state = req.query.state
@@ -248,5 +373,9 @@ module.exports = {
     login,
     stateinfo,
     restlocation,
-    todayrecommendation
+    todayrecommendation,
+    search,
+    addLike,
+    removeLike,
+    getLikedRest
 }
