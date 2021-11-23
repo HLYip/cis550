@@ -46,6 +46,9 @@ app.get('/stateinfo',routes.stateinfo)
 
 app.get('/restlocation',routes.restlocation)
 
+// Route today's recommendation information 
+app.get('/todayrecommendation',routes.todayrecommendation)
+
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });
