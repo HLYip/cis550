@@ -13,11 +13,6 @@ const app = express();
 app.use(cors({
     origin: '*'
 }));
-
-
-
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -45,6 +40,9 @@ app.post('/login', [
 app.get('/stateinfo',routes.stateinfo)
 
 app.get('/restlocation',routes.restlocation)
+
+// Route today's recommendation information 
+app.get('/todayrecommendation',routes.todayrecommendation)
 
 app.get('/search', routes.search)
 
