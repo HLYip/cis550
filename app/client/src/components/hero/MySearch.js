@@ -1,21 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import { Redirect } from 'react-router-dom'
 import tw from "twin.macro";
 import styled from "styled-components";
-import { css } from "styled-components/macro"; //eslint-disable-line
 
-import Header, { NavLink, NavLinks, PrimaryLink as PrimaryLinkBase, LogoLink, NavToggle, DesktopNavLinks } from "../headers/light.js";
+import { DefaultHeader } from "components/headers/MyHeader";
+import { getSearchResults } from "fetcher.js";
 
-const StyledHeader = styled(Header)`
-  ${tw`pt-8 max-w-none w-full`}
-  ${DesktopNavLinks} ${NavLink}, ${LogoLink} {
-    ${tw`text-gray-100 hover:border-gray-300 hover:text-gray-300`}
-  }
-  ${NavToggle}.closed {
-    ${tw`text-gray-100 hover:text-primary-500`}
-  }
-`;
-
-const PrimaryLink = tw(PrimaryLinkBase)`rounded-full`
 const Container = styled.div`
   ${tw`relative -mx-8 -mt-8 bg-center bg-cover h-screen min-h-144`}
   background-image: url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=768&q=80");
@@ -40,36 +30,43 @@ const Actions = styled.div`
 
 export default ({
   heading = "Find Meals Near You!",
+  page = 1,
+  pagesize = 16,
+  category = ''
 }) => {
-  const buttonRoundedCss = tw`rounded-full`;
-  const navLinks = [
-    <NavLinks key={1}>
-      <NavLink href="/#">About</NavLink>
-      <NavLink href="/#">Blog</NavLink>
-      <NavLink href="/#">Pricing</NavLink>
-      <NavLink href="/#">Contact Us</NavLink>
-    </NavLinks>,
-    <NavLinks key={2}>
-      <NavLink href="/#" tw="lg:ml-12!">
-        Login
-      </NavLink>
-      <PrimaryLink css={buttonRoundedCss} href="/#">
-        Sign Up
-      </PrimaryLink>
-    </NavLinks>
-  ];
+  const [input, setInput] = useState('')
+  const [results, setResults] = useState([])
+  // capture text input
+  const updateCity = (e) => {
+    setInput(e.target.value)
+  }
+  // handle button-click event
+  const searchCity = async () => {
+    const searchResults = await getSearchResults(input, category, page, pagesize)
+    if (searchResults.status === 200) {
+      setResults(searchResults.result.results)
+    } else {
+      alert("error")
+    }
+  }
 
   return (
     <Container>
       <OpacityOverlay />
       <HeroContainer>
-        <StyledHeader links={navLinks} />
+        <DefaultHeader />
         <Content>
           <Heading>{heading}</Heading>
           <Actions>
-            <input type="text" placeholder="Your city" />
-            <button>Search</button>
+            <input type="text" placeholder="Your city" onChange={updateCity}/>
+            <button onClick={searchCity}>Search</button>
           </Actions>
+          {results.length > 0 &&
+            <Redirect to={{
+              pathname: '/search',
+              state: { results: results }
+            }}/>
+          }
         </Content>
       </HeroContainer>
     </Container>
