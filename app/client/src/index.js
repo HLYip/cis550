@@ -10,6 +10,7 @@ import "tailwindcss/dist/base.css";
 import "styles/globalStyles.css";
 
 import HomePage from './pages/HomePage';
+import SearchResults from './pages/SearchResults'
 
 ReactDOM.render(
   <div>
@@ -20,12 +21,12 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
-        {/* <Route exact
-							path="/players"
+        <Route
+							path="/search"
 							render={() => (
-								<PlayersPage />
+								<SearchResults/>
 							)}/>
-        <Route exact
+        {/* <Route exact
 							path="/matches"
 							render={() => (
 								<MatchesPage />
