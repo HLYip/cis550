@@ -368,6 +368,13 @@ async function todayrecommendation (req, res){
     });
     }
 }
+
+async function logout(req, res) {
+    req.logout();
+    req.session.destroy();
+    res.status(200).json({ description: 'Log out successfully' });
+}
+
 module.exports = {
     signup,
     login,
@@ -377,5 +384,6 @@ module.exports = {
     search,
     addLike,
     removeLike,
-    getLikedRest
+    getLikedRest,
+    logout
 }

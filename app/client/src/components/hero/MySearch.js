@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom'
 import tw from "twin.macro";
 import styled from "styled-components";
 
-import { DefaultHeader } from "components/headers/MyHeader";
+import DefaultHeader from "components/headers/MyLightHeader";
 import { getSearchResults } from "fetcher.js";
 
 const Container = styled.div`
@@ -32,7 +32,10 @@ export default ({
   heading = "Find Meals Near You!",
   page = 1,
   pagesize = 16,
-  category = ''
+  category = '',
+  authenticated = 0,
+  username = '',
+  userid = ''
 }) => {
   const [input, setInput] = useState('')
   const [results, setResults] = useState([])
@@ -54,7 +57,7 @@ export default ({
     <Container>
       <OpacityOverlay />
       <HeroContainer>
-        <DefaultHeader />
+        <DefaultHeader authenticated={authenticated} username={username} userid={userid}/>
         <Content>
           <Heading>{heading}</Heading>
           <Actions>
