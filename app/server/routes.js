@@ -106,7 +106,17 @@ async function stateinfo(req,res){
             }
         });     
     }else{
-        res.send('bye')
+        connection.query(`SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS health_score,state_abbr
+        FROM Health
+        GROUP BY  state`,function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
     }
 }
 
@@ -327,6 +337,10 @@ async function todayrecommendation (req, res){
     });
     }
 }
+
+
+
+
 module.exports = {
     signup,
     login,
