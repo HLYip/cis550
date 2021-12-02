@@ -43,6 +43,14 @@ const getPlayerSearch = async (name, nationality, club, rating_high, rating_low,
 }
 
 
+const getStateInfo = async (state) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/stateinfo?state=${state}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+
 
 
 
@@ -60,5 +68,6 @@ export {
     getMatch,
     getPlayer,
     getMatchSearch,
-    getPlayerSearch
+    getPlayerSearch,
+    getStateInfo
 }
