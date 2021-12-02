@@ -301,14 +301,14 @@ async function todayrecommendation (req, res){
     if(req.query.state && req.query.category){
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level='low' and H.report_date='2021-11-10' and stars=5
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5)
-        SELECT DISTINCT (name) address, city, TABLE2.state, TABLE2.category
+        SELECT DISTINCT (name) as restaurant, address, city, TABLE2.state, TABLE2.category
         FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
-        WHERE TABLE1.category = '${category}' and state='${state}' '; `,function (error, results, fields) {
+        WHERE TABLE1.category = '${category}' and state='${state}'; `,function (error, results, fields) {
 
            if (error) {
                console.log(error)
@@ -317,15 +317,56 @@ async function todayrecommendation (req, res){
                res.json({ results: results })   
            }
        });
-    }else{
+    }
+    else if(req.query.state){
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level='low' and H.report_date='2021-11-10' and stars=5
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5)
-        SELECT DISTINCT(name), address, city, TABLE2.state, TABLE2.category
+        SELECT DISTINCT (name) as restaurant, address, city, TABLE2.state, TABLE2.category
+        FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+        WHERE state='${state}'; `,function (error, results, fields) {
+
+           if (error) {
+               console.log(error)
+               res.json({ error: error })
+           } else if (results) {
+               res.json({ results: results })   
+           }
+       });
+    }
+    else if(req.query.category){
+        connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
+        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
+        GROUP BY category),
+             TABLE2 AS(SELECT name, address, city, R.state, category
+        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5)
+        SELECT DISTINCT (name) as restaurant, address, city, TABLE2.state, TABLE2.category
+        FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+        WHERE TABLE1.category = '${category}'; `,function (error, results, fields) {
+
+           if (error) {
+               console.log(error)
+               res.json({ error: error })
+           } else if (results) {
+               res.json({ results: results })   
+           }
+       });
+    }
+    else{
+        connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
+        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
+        GROUP BY category),
+             TABLE2 AS(SELECT name, address, city, R.state, category
+        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5)
+        SELECT DISTINCT(name) as restaurant, address, city, TABLE2.state, TABLE2.category
         FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity;`,function (error, results, fields) {
 
         if (error) {
