@@ -64,12 +64,68 @@ async function login(req, res, next) {
 async function stateinfo(req,res){
     const state = req.query.state
     if(req.query.state){
-        connection.query(`with temp as (
-            select r.county, count(c.category) as counts, avg(stars) as avg_stars
+        connection.query(`with not_resturants as (
+            select distinct business_id from Categories
+                where category in ('Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
+                'Hair Salons', 'Waxing,Hair Removal', 'Health & Medical',
+                'Arts & Crafts', 'Real Estate', 'Pediatric Dentists', 'Permanent Makeup', 'Beauty & Spas', 'Massage',
+                'Oil Change Stations', 'Tires,Auto Repair', 'Automotive',
+                'Children''s Clothing', 'Fashion', 'Hospitals', 'Shopping', 'Eyelash Service', 'Hair Extensions',
+                'Security Systems', 'Television Service Providers', 'Professional Services',
+                'Home Services', 'Women''s Clothing', 'Home & Garden', 'Used', 'Vintage & Consignment',
+                'Men''s Clothing', 'Shoe Stores', 'Nail Salons', 'Urgent Care', 'Auto Glass Services',
+                'Florists', 'Thrift Stores', 'Waxing', 'Day Spas', 'Eyelash Service', 'Tattoo', 'Permanent Makeup',
+                'Skin Care', 'Landscaping', 'Orthopedists', 'Plumbing', 'Building Supplies',
+                'Trainers', 'Gyms', 'Pilates', 'Apartments', 'Yoga', 'Appliances & Repair', 'Boxing', 'Art Classes',
+                'Baby Gear & Furniture', 'Thrift Stores', 'Laser Hair Removal', 'Wedding Planning',
+                'Tanning', 'Art Supplies', 'Window Washing', 'Financial Advising', 'Mortgage Lenders', 'Sex Therapists',
+                'Prosthetics', 'Orthotics', 'Carpet Installation', 'Tai Chi', 'Office Equipment',
+                'Strip Clubs', 'Roof Inspectors', 'Carpenters', 'Dance Schools', 'Neurotologists', 'Kickboxing',
+                'Art Space Rentals', 'Real Estate Photography', 'Embroidery & Crochet', 'Title Loans',
+                'Real Estate Law', 'Criminal Defense Law', 'Business Law', 'Hunting & Fishing Supplies',
+                'Gastroenterologist', 'Taekwondo', 'Junk Removal & Hauling', 'Pet Groomers', 'Furniture Reupholstery',
+                'Fingerprinting', 'Motorcycle Dealers', 'Motorcycle Repair', 'Check Cashing/Pay-day Loans',
+                'Speech Therapists', 'Snow Removal', 'Pool Halls', 'Paint & Sip', 'Outdoor Furniture Stores',
+                'Lawn Services',
+                'Estate Planning Law', 'Tennis', 'Golf Lessons', 'Drywall Installation & Repair', 'Trampoline Parks',
+                'Masonry/Concrete', 'Accountants', 'Smog Check Stations', 'Photo Booth Rentals', 'Paint Stores',
+                'Solar Installation',
+                'Vehicle Shipping', 'Towing', 'Wallpapering', 'Emergency Rooms', 'Mountain Biking',
+                'Farm Equipment Repair', 'Battery Stores', 'Self-defense Classes', 'Brazilian Jiu-jitsu', 'Gymnastics',
+                'Musical Instruments & Teachers', 'Commissioned Artists', 'Gun/Rifle Ranges', 'Historical Tours',
+                'Guitar Stores', 'Used Car Dealers', 'Furniture Rental', 'Pet Photography', 'Nurse Practitioner',
+                'Immunodermatologists',
+                'Television Stations', 'Boat Repair', 'Boating', 'Pet Stores', 'Trailer Repair', 'Test Preparation',
+                'Prosthodontists', 'Skate Shops', 'Childbirth Education', 'Driving Schools', 'Debt Relief Services',
+                'Kitchen Supplies',
+                'Knife Sharpening', 'Montessori Schools', 'Immigration Law', 'Pet Training', 'Police Departments',
+                'Hockey Equipment', 'Badminton', 'Passport & Visa Services', 'Art Restoration', 'Halotherapy',
+                'Rock Climbing', 'Fire Departments',
+                'Mobility Equipment Sales & Services', 'Medical Foot Care', 'Auto Electric Services', 'Rheumatologists',
+                'Pet Adoption', 'Massage Schools', 'Pulmonologist', 'Horse Equipment Shops', 'Clock Repair',
+                'Animal Physical Therapy',
+                '3D Printing', 'Calligraphy', 'Game Truck Rental', 'Climbing', 'Baseball Fields', 'Geneticists',
+                'Surfing', 'Pet Waste Removal', 'Boat Parts & Supplies', 'Nursing Schools', 'Hepatologists',
+                'Dialysis Clinics', 'Traffic Schools',
+                'Traffic Ticketing Law', 'Pet Transportation', 'Surf Shop', 'College Counseling',
+                'Electricity Suppliers', 'Skiing', 'Perfume', 'Movers', 'IT Services & Computer Repair',
+                'Mobile Phone Repair', 'Electronics Repair', 'Men''s Hair Salons',
+                'Hair Stylists', 'Barbers', 'Beauty & Spas', 'Massage', 'Personal Injury Law', 'Lawyers', 'DUI Law',
+                'Gas Stations', 'Financial Services', 'Auto Loan Providers', 'Banks & Credit Unions', 'Medical Centers',
+                'Radiologists', 'Diagnostic Services',
+                'Diagnostic Imaging', 'Doctors', 'Education', 'Family Practice', 'Medical Centers', 'Hair Stylists',
+                'Jewelry', 'Jewelry Repair', 'Home Decor', 'Cosmetics & Beauty Supply', 'Beauty & Spas',
+                'Furniture Assembly', 'Mailbox Centers', 'Beauty & Spas',
+                'Shredding Services', 'Shipping Centers', 'Weight Loss Centers', 'Physical Therapy', 'Pain Management',
+                'Hair Removal', 'Reflexology','Printing Services','Parks','Public Services & Government')
+         ), temp as (
+            select county, count(c.category) as counts, avg(stars) as avg_stars
             from Restaurants r
                      join Categories c on r.business_id = c.business_id
-            where r.state = '${state}'
-            group by r.county
+                     left join not_resturants nr on r.business_id = nr.business_id
+            where nr.business_id is null and state = '${state}'
+               or state like '${state}'
+            group by county
         ), health_index as (
             select county, sum(vacc_count),
         Rank() OVER
@@ -108,7 +164,7 @@ async function stateinfo(req,res){
     }else{
         connection.query(`SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS health_score,state_abbr
         FROM Health
-        GROUP BY  state`,function (error, results, fields) {
+        GROUP BY ${state}`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -155,6 +211,65 @@ async function restlocation (req, res){
     }else{
         connection.query(`select * from Restaurants
         where stars>=4 and is_open = 1
+        and business_id in (
+            with not_resturants as (
+                select distinct business_id
+                from Categories
+                where category in
+                ('Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
+                'Hair Salons', 'Waxing,Hair Removal', 'Health & Medical',
+                'Arts & Crafts', 'Real Estate', 'Pediatric Dentists', 'Permanent Makeup', 'Beauty & Spas', 'Massage',
+                'Oil Change Stations', 'Tires,Auto Repair', 'Automotive',
+                'Children''s Clothing', 'Fashion', 'Hospitals', 'Shopping', 'Eyelash Service', 'Hair Extensions',
+                'Security Systems', 'Television Service Providers', 'Professional Services',
+                'Home Services', 'Women''s Clothing', 'Home & Garden', 'Used', 'Vintage & Consignment',
+                'Men''s Clothing', 'Shoe Stores', 'Nail Salons', 'Urgent Care', 'Auto Glass Services',
+                'Florists', 'Thrift Stores', 'Waxing', 'Day Spas', 'Eyelash Service', 'Tattoo', 'Permanent Makeup',
+                'Skin Care', 'Landscaping', 'Orthopedists', 'Plumbing', 'Building Supplies',
+                'Trainers', 'Gyms', 'Pilates', 'Apartments', 'Yoga', 'Appliances & Repair', 'Boxing', 'Art Classes',
+                'Baby Gear & Furniture', 'Thrift Stores', 'Laser Hair Removal', 'Wedding Planning',
+                'Tanning', 'Art Supplies', 'Window Washing', 'Financial Advising', 'Mortgage Lenders', 'Sex Therapists',
+                'Prosthetics', 'Orthotics', 'Carpet Installation', 'Tai Chi', 'Office Equipment',
+                'Strip Clubs', 'Roof Inspectors', 'Carpenters', 'Dance Schools', 'Neurotologists', 'Kickboxing',
+                'Art Space Rentals', 'Real Estate Photography', 'Embroidery & Crochet', 'Title Loans',
+                'Real Estate Law', 'Criminal Defense Law', 'Business Law', 'Hunting & Fishing Supplies',
+                'Gastroenterologist', 'Taekwondo', 'Junk Removal & Hauling', 'Pet Groomers', 'Furniture Reupholstery',
+                'Fingerprinting', 'Motorcycle Dealers', 'Motorcycle Repair', 'Check Cashing/Pay-day Loans',
+                'Speech Therapists', 'Snow Removal', 'Pool Halls', 'Paint & Sip', 'Outdoor Furniture Stores',
+                'Lawn Services',
+                'Estate Planning Law', 'Tennis', 'Golf Lessons', 'Drywall Installation & Repair', 'Trampoline Parks',
+                'Masonry/Concrete', 'Accountants', 'Smog Check Stations', 'Photo Booth Rentals', 'Paint Stores',
+                'Solar Installation',
+                'Vehicle Shipping', 'Towing', 'Wallpapering', 'Emergency Rooms', 'Mountain Biking',
+                'Farm Equipment Repair', 'Battery Stores', 'Self-defense Classes', 'Brazilian Jiu-jitsu', 'Gymnastics',
+                'Musical Instruments & Teachers', 'Commissioned Artists', 'Gun/Rifle Ranges', 'Historical Tours',
+                'Guitar Stores', 'Used Car Dealers', 'Furniture Rental', 'Pet Photography', 'Nurse Practitioner',
+                'Immunodermatologists',
+                'Television Stations', 'Boat Repair', 'Boating', 'Pet Stores', 'Trailer Repair', 'Test Preparation',
+                'Prosthodontists', 'Skate Shops', 'Childbirth Education', 'Driving Schools', 'Debt Relief Services',
+                'Kitchen Supplies',
+                'Knife Sharpening', 'Montessori Schools', 'Immigration Law', 'Pet Training', 'Police Departments',
+                'Hockey Equipment', 'Badminton', 'Passport & Visa Services', 'Art Restoration', 'Halotherapy',
+                'Rock Climbing', 'Fire Departments',
+                'Mobility Equipment Sales & Services', 'Medical Foot Care', 'Auto Electric Services', 'Rheumatologists',
+                'Pet Adoption', 'Massage Schools', 'Pulmonologist', 'Horse Equipment Shops', 'Clock Repair',
+                'Animal Physical Therapy',
+                '3D Printing', 'Calligraphy', 'Game Truck Rental', 'Climbing', 'Baseball Fields', 'Geneticists',
+                'Surfing', 'Pet Waste Removal', 'Boat Parts & Supplies', 'Nursing Schools', 'Hepatologists',
+                'Dialysis Clinics', 'Traffic Schools',
+                'Traffic Ticketing Law', 'Pet Transportation', 'Surf Shop', 'College Counseling',
+                'Electricity Suppliers', 'Skiing', 'Perfume', 'Movers', 'IT Services & Computer Repair',
+                'Mobile Phone Repair', 'Electronics Repair', 'Men''s Hair Salons',
+                'Hair Stylists', 'Barbers', 'Beauty & Spas', 'Massage', 'Personal Injury Law', 'Lawyers', 'DUI Law',
+                'Gas Stations', 'Financial Services', 'Auto Loan Providers', 'Banks & Credit Unions', 'Medical Centers',
+                'Radiologists', 'Diagnostic Services',
+                'Diagnostic Imaging', 'Doctors', 'Education', 'Family Practice', 'Medical Centers', 'Hair Stylists',
+                'Jewelry', 'Jewelry Repair', 'Home Decor', 'Cosmetics & Beauty Supply', 'Beauty & Spas',
+                'Furniture Assembly', 'Mailbox Centers', 'Beauty & Spas',
+                'Shredding Services', 'Shipping Centers', 'Weight Loss Centers', 'Physical Therapy', 'Pain Management',
+                'Hair Removal', 'Reflexology','Printing Services','Parks','Public Services & Government')
+            )Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
+            where nr.business_id is null)
         order by RAND()
         limit 8`,function (error, results, fields) {
 
@@ -195,7 +310,7 @@ async function search(req, res) {
             NATURAL JOIN Categories
             WHERE city='${city}' AND category like '%${category}%'
         )
-        SELECT  business_id, name, address, city, state, zipcode, latitude, longitude,
+        SELECT  distinct business_id, name, address, city, state, zipcode, latitude, longitude,
                 stars, review_count, is_open, hours
         FROM rest_score R
         JOIN health_score ON R.county = health_score.county AND R.state = health_score.state_abbr
@@ -321,7 +436,65 @@ async function todayrecommendation (req, res){
     else if(req.query.state){
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5 and R.business_id in (
+            with not_resturants as (
+                select distinct business_id
+                from Categories
+                where category in
+                      ('Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
+                       'Hair Salons', 'Waxing,Hair Removal', 'Health & Medical',
+                       'Arts & Crafts', 'Real Estate', 'Pediatric Dentists', 'Permanent Makeup', 'Beauty & Spas', 'Massage',
+                       'Oil Change Stations', 'Tires,Auto Repair', 'Automotive',
+                       'Children''s Clothing', 'Fashion', 'Hospitals', 'Shopping', 'Eyelash Service', 'Hair Extensions',
+                       'Security Systems', 'Television Service Providers', 'Professional Services',
+                       'Home Services', 'Women''s Clothing', 'Home & Garden', 'Used', 'Vintage & Consignment',
+                       'Men''s Clothing', 'Shoe Stores', 'Nail Salons', 'Urgent Care', 'Auto Glass Services',
+                       'Florists', 'Thrift Stores', 'Waxing', 'Day Spas', 'Eyelash Service', 'Tattoo', 'Permanent Makeup',
+                       'Skin Care', 'Landscaping', 'Orthopedists', 'Plumbing', 'Building Supplies',
+                       'Trainers', 'Gyms', 'Pilates', 'Apartments', 'Yoga', 'Appliances & Repair', 'Boxing', 'Art Classes',
+                       'Baby Gear & Furniture', 'Thrift Stores', 'Laser Hair Removal', 'Wedding Planning',
+                       'Tanning', 'Art Supplies', 'Window Washing', 'Financial Advising', 'Mortgage Lenders', 'Sex Therapists',
+                       'Prosthetics', 'Orthotics', 'Carpet Installation', 'Tai Chi', 'Office Equipment',
+                       'Strip Clubs', 'Roof Inspectors', 'Carpenters', 'Dance Schools', 'Neurotologists', 'Kickboxing',
+                       'Art Space Rentals', 'Real Estate Photography', 'Embroidery & Crochet', 'Title Loans',
+                       'Real Estate Law', 'Criminal Defense Law', 'Business Law', 'Hunting & Fishing Supplies',
+                       'Gastroenterologist', 'Taekwondo', 'Junk Removal & Hauling', 'Pet Groomers', 'Furniture Reupholstery',
+                       'Fingerprinting', 'Motorcycle Dealers', 'Motorcycle Repair', 'Check Cashing/Pay-day Loans',
+                       'Speech Therapists', 'Snow Removal', 'Pool Halls', 'Paint & Sip', 'Outdoor Furniture Stores',
+                       'Lawn Services',
+                       'Estate Planning Law', 'Tennis', 'Golf Lessons', 'Drywall Installation & Repair', 'Trampoline Parks',
+                       'Masonry/Concrete', 'Accountants', 'Smog Check Stations', 'Photo Booth Rentals', 'Paint Stores',
+                       'Solar Installation',
+                       'Vehicle Shipping', 'Towing', 'Wallpapering', 'Emergency Rooms', 'Mountain Biking',
+                       'Farm Equipment Repair', 'Battery Stores', 'Self-defense Classes', 'Brazilian Jiu-jitsu', 'Gymnastics',
+                       'Musical Instruments & Teachers', 'Commissioned Artists', 'Gun/Rifle Ranges', 'Historical Tours',
+                       'Guitar Stores', 'Used Car Dealers', 'Furniture Rental', 'Pet Photography', 'Nurse Practitioner',
+                       'Immunodermatologists',
+                       'Television Stations', 'Boat Repair', 'Boating', 'Pet Stores', 'Trailer Repair', 'Test Preparation',
+                       'Prosthodontists', 'Skate Shops', 'Childbirth Education', 'Driving Schools', 'Debt Relief Services',
+                       'Kitchen Supplies',
+                       'Knife Sharpening', 'Montessori Schools', 'Immigration Law', 'Pet Training', 'Police Departments',
+                       'Hockey Equipment', 'Badminton', 'Passport & Visa Services', 'Art Restoration', 'Halotherapy',
+                       'Rock Climbing', 'Fire Departments',
+                       'Mobility Equipment Sales & Services', 'Medical Foot Care', 'Auto Electric Services', 'Rheumatologists',
+                       'Pet Adoption', 'Massage Schools', 'Pulmonologist', 'Horse Equipment Shops', 'Clock Repair',
+                       'Animal Physical Therapy',
+                       '3D Printing', 'Calligraphy', 'Game Truck Rental', 'Climbing', 'Baseball Fields', 'Geneticists',
+                       'Surfing', 'Pet Waste Removal', 'Boat Parts & Supplies', 'Nursing Schools', 'Hepatologists',
+                       'Dialysis Clinics', 'Traffic Schools',
+                       'Traffic Ticketing Law', 'Pet Transportation', 'Surf Shop', 'College Counseling',
+                       'Electricity Suppliers', 'Skiing', 'Perfume', 'Movers', 'IT Services & Computer Repair',
+                       'Mobile Phone Repair', 'Electronics Repair', 'Men''s Hair Salons',
+                       'Hair Stylists', 'Barbers', 'Beauty & Spas', 'Massage', 'Personal Injury Law', 'Lawyers', 'DUI Law',
+                       'Gas Stations', 'Financial Services', 'Auto Loan Providers', 'Banks & Credit Unions', 'Medical Centers',
+                       'Radiologists', 'Diagnostic Services',
+                       'Diagnostic Imaging', 'Doctors', 'Education', 'Family Practice', 'Medical Centers', 'Hair Stylists',
+                       'Jewelry', 'Jewelry Repair', 'Home Decor', 'Cosmetics & Beauty Supply', 'Beauty & Spas',
+                       'Furniture Assembly', 'Mailbox Centers', 'Beauty & Spas',
+                       'Shredding Services', 'Shipping Centers', 'Weight Loss Centers', 'Physical Therapy', 'Pain Management',
+                       'Hair Removal', 'Reflexology','Printing Services','Parks','Public Services & Government')
+            )Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
+            where nr.business_id is null)
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
@@ -361,7 +534,65 @@ async function todayrecommendation (req, res){
     else{
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
+        WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5 and R.business_id in (
+            with not_resturants as (
+                select distinct business_id
+                from Categories
+                where category in
+                      ('Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
+                       'Hair Salons', 'Waxing,Hair Removal', 'Health & Medical',
+                       'Arts & Crafts', 'Real Estate', 'Pediatric Dentists', 'Permanent Makeup', 'Beauty & Spas', 'Massage',
+                       'Oil Change Stations', 'Tires,Auto Repair', 'Automotive',
+                       'Children''s Clothing', 'Fashion', 'Hospitals', 'Shopping', 'Eyelash Service', 'Hair Extensions',
+                       'Security Systems', 'Television Service Providers', 'Professional Services',
+                       'Home Services', 'Women''s Clothing', 'Home & Garden', 'Used', 'Vintage & Consignment',
+                       'Men''s Clothing', 'Shoe Stores', 'Nail Salons', 'Urgent Care', 'Auto Glass Services',
+                       'Florists', 'Thrift Stores', 'Waxing', 'Day Spas', 'Eyelash Service', 'Tattoo', 'Permanent Makeup',
+                       'Skin Care', 'Landscaping', 'Orthopedists', 'Plumbing', 'Building Supplies',
+                       'Trainers', 'Gyms', 'Pilates', 'Apartments', 'Yoga', 'Appliances & Repair', 'Boxing', 'Art Classes',
+                       'Baby Gear & Furniture', 'Thrift Stores', 'Laser Hair Removal', 'Wedding Planning',
+                       'Tanning', 'Art Supplies', 'Window Washing', 'Financial Advising', 'Mortgage Lenders', 'Sex Therapists',
+                       'Prosthetics', 'Orthotics', 'Carpet Installation', 'Tai Chi', 'Office Equipment',
+                       'Strip Clubs', 'Roof Inspectors', 'Carpenters', 'Dance Schools', 'Neurotologists', 'Kickboxing',
+                       'Art Space Rentals', 'Real Estate Photography', 'Embroidery & Crochet', 'Title Loans',
+                       'Real Estate Law', 'Criminal Defense Law', 'Business Law', 'Hunting & Fishing Supplies',
+                       'Gastroenterologist', 'Taekwondo', 'Junk Removal & Hauling', 'Pet Groomers', 'Furniture Reupholstery',
+                       'Fingerprinting', 'Motorcycle Dealers', 'Motorcycle Repair', 'Check Cashing/Pay-day Loans',
+                       'Speech Therapists', 'Snow Removal', 'Pool Halls', 'Paint & Sip', 'Outdoor Furniture Stores',
+                       'Lawn Services',
+                       'Estate Planning Law', 'Tennis', 'Golf Lessons', 'Drywall Installation & Repair', 'Trampoline Parks',
+                       'Masonry/Concrete', 'Accountants', 'Smog Check Stations', 'Photo Booth Rentals', 'Paint Stores',
+                       'Solar Installation',
+                       'Vehicle Shipping', 'Towing', 'Wallpapering', 'Emergency Rooms', 'Mountain Biking',
+                       'Farm Equipment Repair', 'Battery Stores', 'Self-defense Classes', 'Brazilian Jiu-jitsu', 'Gymnastics',
+                       'Musical Instruments & Teachers', 'Commissioned Artists', 'Gun/Rifle Ranges', 'Historical Tours',
+                       'Guitar Stores', 'Used Car Dealers', 'Furniture Rental', 'Pet Photography', 'Nurse Practitioner',
+                       'Immunodermatologists',
+                       'Television Stations', 'Boat Repair', 'Boating', 'Pet Stores', 'Trailer Repair', 'Test Preparation',
+                       'Prosthodontists', 'Skate Shops', 'Childbirth Education', 'Driving Schools', 'Debt Relief Services',
+                       'Kitchen Supplies',
+                       'Knife Sharpening', 'Montessori Schools', 'Immigration Law', 'Pet Training', 'Police Departments',
+                       'Hockey Equipment', 'Badminton', 'Passport & Visa Services', 'Art Restoration', 'Halotherapy',
+                       'Rock Climbing', 'Fire Departments',
+                       'Mobility Equipment Sales & Services', 'Medical Foot Care', 'Auto Electric Services', 'Rheumatologists',
+                       'Pet Adoption', 'Massage Schools', 'Pulmonologist', 'Horse Equipment Shops', 'Clock Repair',
+                       'Animal Physical Therapy',
+                       '3D Printing', 'Calligraphy', 'Game Truck Rental', 'Climbing', 'Baseball Fields', 'Geneticists',
+                       'Surfing', 'Pet Waste Removal', 'Boat Parts & Supplies', 'Nursing Schools', 'Hepatologists',
+                       'Dialysis Clinics', 'Traffic Schools',
+                       'Traffic Ticketing Law', 'Pet Transportation', 'Surf Shop', 'College Counseling',
+                       'Electricity Suppliers', 'Skiing', 'Perfume', 'Movers', 'IT Services & Computer Repair',
+                       'Mobile Phone Repair', 'Electronics Repair', 'Men''s Hair Salons',
+                       'Hair Stylists', 'Barbers', 'Beauty & Spas', 'Massage', 'Personal Injury Law', 'Lawyers', 'DUI Law',
+                       'Gas Stations', 'Financial Services', 'Auto Loan Providers', 'Banks & Credit Unions', 'Medical Centers',
+                       'Radiologists', 'Diagnostic Services',
+                       'Diagnostic Imaging', 'Doctors', 'Education', 'Family Practice', 'Medical Centers', 'Hair Stylists',
+                       'Jewelry', 'Jewelry Repair', 'Home Decor', 'Cosmetics & Beauty Supply', 'Beauty & Spas',
+                       'Furniture Assembly', 'Mailbox Centers', 'Beauty & Spas',
+                       'Shredding Services', 'Shipping Centers', 'Weight Loss Centers', 'Physical Therapy', 'Pain Management',
+                       'Hair Removal', 'Reflexology','Printing Services','Parks','Public Services & Government')
+            )Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
+            where nr.business_id is null)
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
