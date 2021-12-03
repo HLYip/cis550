@@ -340,7 +340,7 @@ async function covid (req, res){
     
     const county = req.query.county 
     
-    if(req.query.category){
+    if(req.query.county){
         connection.query(`SELECT *
         FROM Health
         WHERE county='${county}'
