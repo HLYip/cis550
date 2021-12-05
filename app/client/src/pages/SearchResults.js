@@ -4,7 +4,7 @@ import tw from "twin.macro";
 import styled from "styled-components";
 
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
-import { DarkHeader } from "components/headers/MyHeader";
+import DarkHeader from "components/headers/MyDarkHeader"
 import TabGrid from "components/cards/MySearchTabCardGrid.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
 

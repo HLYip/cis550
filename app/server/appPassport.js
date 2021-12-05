@@ -8,7 +8,9 @@ module.exports = function(passport) {
   /**
    * Passport Authentication Initialization
    */
-  passport.use('login', new LocalStrategy(
+  passport.use('login', new LocalStrategy({
+    usernameField: 'username', passwordField: 'password',
+  },
     async function(username, password, done) {
       connection.query(`SELECT * FROM Users WHERE username = '${username}'`, async function(err,rows){
         if (err)
@@ -23,18 +25,20 @@ module.exports = function(passport) {
             return done(null, false, { message: 'Incorrect password.' }); 
         }
         // all is well, return successful user
-        return done(null, rows[0], { mussage: 'Success.'});			
+        return done(null, rows[0], { message: 'Success.'});			
       });
     }
   ));
 
   passport.serializeUser((user, done) => {
     // eslint-disable-next-line no-underscore-dangle
+    console.log('serializing user '+user)
     done(null, user.user_id);
   });
 
-  passport.deserializeUser((user_id, done) => {
-    connection.query(`select * from Users where user_id = ${user_id}`,function(err,rows){	
+  passport.deserializeUser((id, done) => {
+    console.log('deserializing user '+id)
+    connection.query(`select * from Users where user_id = '${id}'`,function(err,rows){	
       done(err, rows[0]);
     });
   });

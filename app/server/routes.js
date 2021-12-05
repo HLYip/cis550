@@ -465,6 +465,11 @@ async function covid (req, res){
     
 }
 
+async function logout(req, res) {
+    req.logout();
+    req.session.destroy();
+    res.status(200).json({ description: 'Log out successfully' });
+}
 
 
 
@@ -480,5 +485,6 @@ module.exports = {
     addLike,
     removeLike,
     getLikedRest,
+    logout,
     getlocation
 }
