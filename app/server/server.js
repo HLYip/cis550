@@ -9,7 +9,7 @@ const cookieParser = require('cookie-parser');
 const routes = require('./routes')
 const config = require('./config.json')
 const { inputValidatedAndSanitized, checkAuthentication } = require('./utils')
-
+require('./appPassport')(passport);
 
 const app = express();
 
@@ -26,7 +26,7 @@ app.use(session({
     saveUninitialized: false,
     store: new MySQLStore(options),
 }))
-require('./appPassport')(passport);
+
 app.use(cookieParser());
 app.use(cors({credentials: true, origin: true}));
 app.use(express.json());
