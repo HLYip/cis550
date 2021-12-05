@@ -44,6 +44,10 @@ app.get('/restlocation',routes.restlocation)
 // Route today's recommendation information 
 app.get('/todayrecommendation',routes.todayrecommendation)
 
+app.get('/covid',routes.covid)
+
+app.get('/explore',routes.explore)
+
 app.get('/search', routes.search)
 
 app.post('/like', routes.addLike)
