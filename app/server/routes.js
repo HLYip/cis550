@@ -407,6 +407,32 @@ async function getLikedRest(req, res) {
     }
 }
 
+async function getlocation(req,res){
+    const state = req.query.state
+    if(req.query.state){
+        connection.query(`Select lat, lng from Restaurant where`,function (error, results, fields) {
+
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })   
+            }
+        });
+ 
+     }else{
+         connection.query(`select lat, lng from Resturant where name = `,function (error, results, fields) {
+
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+        }
+    }
+
 
 async function todayrecommendation (req, res){
     
@@ -622,5 +648,6 @@ module.exports = {
     search,
     addLike,
     removeLike,
-    getLikedRest
+    getLikedRest,
+    getlocation
 }
