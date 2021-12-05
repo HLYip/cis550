@@ -5,14 +5,25 @@ import {
 	Route,
 	Switch
 } from 'react-router-dom';
+import { Provider } from 'react-globally'
 
 import "tailwindcss/dist/base.css";
 import "styles/globalStyles.css";
 
 import HomePage from './pages/HomePage';
 import SearchResults from './pages/SearchResults'
+import Signup from './pages/Signup'
+import Login from './pages/Login'
+
+const initialState = {
+	authenticated: false,
+	prefer_health: 1,
+	userId: "",
+	username: "",
+}
 
 ReactDOM.render(
+  <Provider globalState={initialState}>
   <div>
     <Router>
       <Switch>
@@ -26,14 +37,20 @@ ReactDOM.render(
 							render={() => (
 								<SearchResults/>
 							)}/>
-        {/* <Route exact
-							path="/matches"
+        <Route exact
+							path="/signup"
 							render={() => (
-								<MatchesPage />
-							)}/> */}
+								<Signup />
+							)}/>
+		 <Route exact
+							path="/login"
+							render={() => (
+								<Login />
+							)}/>
       </Switch>
     </Router>
-  </div>,
+  </div>
+  </Provider>,
   document.getElementById('root')
 );
 
