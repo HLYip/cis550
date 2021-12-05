@@ -420,8 +420,6 @@ async function todayrecommendation (req, res){
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5 
-        Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
-            where nr.business_id is null)
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
@@ -462,8 +460,6 @@ async function todayrecommendation (req, res){
         connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.report_date='2021-11-10' and stars=5
-        Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
-            where nr.business_id is null)
         GROUP BY category),
              TABLE2 AS(SELECT name, address, city, R.state, category
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
