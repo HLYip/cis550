@@ -54,6 +54,10 @@ app.get('/restlocation',routes.restlocation)
 // Route today's recommendation information 
 app.get('/todayrecommendation',routes.todayrecommendation)
 
+app.get('/covid',routes.covid)
+
+app.get('/explore',routes.explore)
+
 app.get('/search', routes.search)
 
 app.post('/like', routes.addLike)
@@ -62,10 +66,12 @@ app.delete('/like', routes.removeLike)
 
 app.get('/likes/:username', routes.getLikedRest)
 
+app.get('/resturants',routes.getlocation)
+
+app.post('/logout', routes.logout)
+
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });
-
-app.post('/logout', routes.logout)
 
 module.exports = app;
