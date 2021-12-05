@@ -446,13 +446,14 @@ async function explore (req, res){
 }
 async function covid (req, res){
     
-    const county = req.query.county 
+    const state = req.query.state 
     
-    if(req.query.county){
-        connection.query(`SELECT *
+    if(req.query.state){
+        connection.query(`SELECT report_date, SUM(case_count_change) as number
         FROM Health
-        WHERE county='${county}'
-        ORDER BY report_date DESC;`,function (error, results, fields) {
+        WHERE state='%${state}' or state_abbr = '${state}'
+        GROUP BY report_date
+        ORDER BY report_date;`,function (error, results, fields) {
 
            if (error) {
                console.log(error)
@@ -461,6 +462,21 @@ async function covid (req, res){
                res.json({ results: results })   
            }
        });
+    }
+    else{
+        connection.query(`SELECT report_date, SUM(case_count_change) as number
+        FROM Health
+        GROUP BY report_date
+        ORDER BY report_date;`,function (error, results, fields) {
+
+           if (error) {
+               console.log(error)
+               res.json({ error: error })
+           } else if (results) {
+               res.json({ results: results })   
+           }
+       });
+      
     }
     
 }
