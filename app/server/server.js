@@ -56,6 +56,8 @@ app.delete('/like', routes.removeLike)
 
 app.get('/likes/:username', routes.getLikedRest)
 
+app.get('/resturants',routes.getlocation)
+
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
 });
