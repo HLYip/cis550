@@ -407,30 +407,19 @@ async function getLikedRest(req, res) {
     }
 }
 
-async function getlocation(req,res){
-    const state = req.query.state
-    if(req.query.state){
-        connection.query(`Select lat, lng from Restaurant where`,function (error, results, fields) {
+async function getRestInfo(req,res){
+    const bus_id = req.query.bus_id
+    connection.query(`Select lat, lng from Restaurant where business_id = ${bus_id}`,function (error, results, fields) {
 
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })   
-            }
-        });
- 
-     }else{
-         connection.query(`select lat, lng from Resturant where name = `,function (error, results, fields) {
-
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })   
         }
+    });
+ 
+   
     }
 
 
@@ -649,5 +638,5 @@ module.exports = {
     addLike,
     removeLike,
     getLikedRest,
-    getlocation
+    getRestInfo
 }
