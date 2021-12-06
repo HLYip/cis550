@@ -14,6 +14,7 @@ import HomePage from './pages/HomePage';
 import SearchResults from './pages/SearchResults'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
+import RestDetails from 'pages/RestDetails';
 
 const initialState = {
 	authenticated: false,
@@ -42,10 +43,15 @@ ReactDOM.render(
 							render={() => (
 								<Signup />
 							)}/>
-		 <Route exact
+		<Route exact
 							path="/login"
 							render={() => (
 								<Login />
+							)}/>
+		<Route exact
+							path="/restaurant"
+							render={() => (
+								<RestDetails />
 							)}/>
       </Switch>
     </Router>

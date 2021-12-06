@@ -77,7 +77,7 @@ function Signup(props, {
   ],
   submitButtonText = "Sign Up",
   SubmitButtonIcon = SignUpIcon,
-  prefer_health = "* Would you care about the extent to which the dining area is affected by COVID?",
+  prefer_health = "* Would you care about the extent to which the dining area is affected by coronavirus?",
   signInUrl = "/login"
 }){
   const [username, setUsername] = useState('')
