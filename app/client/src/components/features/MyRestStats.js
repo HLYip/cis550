@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { SectionHeading } from "components/misc/Headings.js";
+import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24`;
@@ -21,10 +22,14 @@ const TextContent = tw.div`lg:py-8`;
 const Heading = tw(SectionHeading)`text-left text-3xl sm:text-4xl lg:text-5xl text-center md:text-left leading-tight`;
 const Description = tw.div`text-center md:text-left text-sm md:text-base lg:text-lg font-medium leading-relaxed text-secondary-100 mt-4`
 
-const Statistics = tw.div`mt-6 lg:mt-8 xl:mt-16 flex flex-wrap`
+const Statistics = tw.div`flex flex-wrap`
 const Statistic = tw.div`text-lg sm:text-2xl lg:text-3xl w-1/2 mt-4 lg:mt-10 text-center md:text-left`
 const Value = tw.div`font-bold text-primary-500`
 const Key = tw.div`font-medium text-gray-700`
+const PrimaryButton = styled(PrimaryButtonBase)(props => [
+  tw`text-sm inline-block mr-2 mt-2`,
+  props.buttonRounded && tw`rounded-full`
+]);
 
 export default ({textOnLeft = false, restaurant}) => {
   // The textOnLeft boolean prop can be used to display either the text on left or right side of the image.
@@ -41,7 +46,6 @@ export default ({textOnLeft = false, restaurant}) => {
       hours[dayArray[0]] = dayArray[1]
     })
   }
-  console.log(hours)
 
   return (
     <Container>
@@ -52,6 +56,17 @@ export default ({textOnLeft = false, restaurant}) => {
         <TextColumn textOnLeft={textOnLeft}>
           <TextContent>
             <Heading>{restaurant.name}</Heading>
+            <div tw="mt-5 mb-5">
+            {Object.keys(restaurant).map((key, index) => {
+              if (restaurant[key]===1){
+                return (
+                  <PrimaryButton>
+                    {key.replace("_"," ")}
+                  </PrimaryButton>
+                )
+              }
+            })}
+            </div>
             <Description>
               <p tw="font-bold mb-3">Opening hours:</p>
               {Object.keys(hours).map((day, index) => (
@@ -71,11 +86,11 @@ export default ({textOnLeft = false, restaurant}) => {
                 <Key>Reviews</Key>
               </Statistic>
               <Statistic key={2}>
-                <Value>20%</Value>
+                <Value>{restaurant.average_pos_rate}%</Value>
                 <Key>Positivity Rate</Key>
               </Statistic>
               <Statistic key={3}>
-                <Value>70%</Value>
+                <Value>{restaurant.average_vacc_pct}%</Value>
                 <Key>Vaccination Rate</Key>
               </Statistic>
             </Statistics>
