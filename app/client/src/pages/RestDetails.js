@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import tw from "twin.macro";
 import styled from "styled-components";
 
@@ -12,12 +13,14 @@ const Container = styled.div`
 `;
 
 export default function RestDetails() {
+  const { state }  = useLocation();
+  console.log(state)
   return (
     <AnimationRevealPage>
       <Container>
         <DarkHeader />
       </Container>
-      <Stats />
+      <Stats restaurant={state}/>
       <Footer />
     </AnimationRevealPage>
   );

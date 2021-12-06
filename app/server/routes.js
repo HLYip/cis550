@@ -367,11 +367,11 @@ async function getLikedRest(req, res) {
 async function getRestInfo(req,res){
     const bus_id = req.query.bus_id
     
-    connection.query(`Select * from Restaurant where business_id = ${bus_id}`,function (error, results, fields) {
+    connection.query(`Select * from Restaurants where business_id = '${bus_id}'`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
-            res.json({ error: error })
+            res.status(500).json({ error: error })
         } else if (results) {
             res.json({ results: results })   
         }
