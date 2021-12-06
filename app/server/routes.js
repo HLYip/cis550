@@ -367,7 +367,13 @@ async function getLikedRest(req, res) {
 async function getRestInfo(req,res){
     const bus_id = req.query.bus_id
     
-    connection.query(`Select * from Restaurant where business_id = ${bus_id}`,function (error, results, fields) {
+    connection.query(`with county_health as (
+        select county, round(avg(pos_pct),2) as average_pos_rate, max(trans_level) as trans_level,round(avg(vacc_pct),2) as average_vacc_pct
+        from Health group by county
+        )Select * from Restaurants join county_health
+            on Restaurants.county = county_health.county
+            join Attributes A on Restaurants.business_id = A.business_id
+            where Restaurants.business_id =  ${bus_id}`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
