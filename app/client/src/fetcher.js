@@ -70,7 +70,7 @@ const getTodayRecommendation = async (category) => {
 }
 
 const getRestInfo = async (id) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/resturants?bus_id=${id}`, {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/restaurant?bus_id=${id}`, {
         method: 'GET',
     })
     var json = await res.json()
