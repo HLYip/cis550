@@ -66,7 +66,7 @@ app.delete('/like', routes.removeLike)
 
 app.get('/likes/:username', routes.getLikedRest)
 
-app.get('/resturants',routes.getlocation)
+app.get('/resturants',routes.getRestInfo)
 
 app.post('/logout', routes.logout)
 
