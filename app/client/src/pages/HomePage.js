@@ -4,7 +4,7 @@ import tw from "twin.macro";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import Hero from "components/hero/MySearch.js";
 import TabGrid from "components/cards/MyTabCardGrid.js";
-import Footer from "components/footers/FiveColumnWithInputForm.js";
+import Footer from "components/footers/MyMiniCenteredFooter";
 
 function HomePage(props) {
   const HighlightedText = tw.span`bg-primary-500 text-gray-100 px-4 transform -skew-x-12 inline-block`;
@@ -20,7 +20,7 @@ function HomePage(props) {
       <TabGrid
         heading={
           <>
-            Checkout these <HighlightedText>restaurants.</HighlightedText>
+            Today's <HighlightedText>Recommendation</HighlightedText>
           </>
         }
       />

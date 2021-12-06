@@ -60,10 +60,19 @@ const postLogout= async () => {
     return {status: res.status, result: json}
 }
 
+const getTodayRecommendation = async (category) => {
+    console.log(category)
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/todayrecommendation?category=${category}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
 
 export {
     getSearchResults,
     postSignup,
     postLogin,
-    postLogout
+    postLogout,
+    getTodayRecommendation
 }

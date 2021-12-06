@@ -400,10 +400,10 @@ async function todayrecommendation (req, res){
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
         GROUP BY category),
-             TABLE2 AS(SELECT name, address, city, R.state, category, trans_level
+             TABLE2 AS(SELECT name, address, city, R.state, category, trans_level, R.business_id as business_id
         FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
         WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
-        SELECT DISTINCT (name) as restaurant, address, city, TABLE2.state, trans_level
+        SELECT DISTINCT (name) as restaurant, address, city, business_id, TABLE2.state, trans_level
         FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
         WHERE TABLE1.category ='${category}'
         LIMIT 8; `,function (error, results, fields) {
