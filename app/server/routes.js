@@ -490,10 +490,5 @@ module.exports = {
     addLike,
     removeLike,
     getLikedRest,
-<<<<<<< HEAD
     getRestInfo
-=======
-    logout,
-    getlocation
->>>>>>> 8625d31a2b1168a2d6381094e457b4c92157d106
 }
