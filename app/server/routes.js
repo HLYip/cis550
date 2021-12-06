@@ -490,5 +490,6 @@ module.exports = {
     addLike,
     removeLike,
     getLikedRest,
+    abc,
     getRestInfo
 }
