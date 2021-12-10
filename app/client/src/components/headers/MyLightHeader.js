@@ -61,7 +61,7 @@ function DefaultHeader(props) {
           <NavLink tw="lg:ml-12!" onClick={logout}>
             Logout
           </NavLink>
-          <PrimaryLink css={buttonRoundedCss} href="#">
+          <PrimaryLink css={buttonRoundedCss} href="/collection">
             Collection
           </PrimaryLink>
         </NavLinks>

@@ -344,14 +344,14 @@ async function removeLike(req, res) {
 }
 
 async function getLikedRest(req, res) {
-    if (!req.params.username) {
+    if (!req.query.user_id) {
         res.status(400).json({ description: 'Invalid input' });
     } else {
-        const username = req.params.username
+        const user_id = req.query.user_id
         connection.query(`
-        SELECT business_id FROM Users
-        NATURAL JOIN Likes
-        WHERE username = '${username}'
+        SELECT * FROM Likes
+        NATURAL JOIN Restaurants
+        WHERE user_id='${user_id}'
         `, function(error, results) {
             if (error) {
                 res.status(500).json({ description: error })

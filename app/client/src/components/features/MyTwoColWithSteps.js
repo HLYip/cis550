@@ -3,9 +3,11 @@ import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
 import { SectionHeading, Subheading as SubheadingBase } from "components/misc/Headings.js";
+import { SectionDescription } from "components/misc/Typography.js";
 import TeamIllustrationSrc from "images/team-illustration-2.svg";
 import { ReactComponent as SvgDotPattern } from "images/dot-pattern.svg";
 
+const Description = tw(SectionDescription)`w-full text-left`;
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24 items-center`;
 const Column = tw.div`w-full max-w-md mx-auto md:max-w-none md:mx-0`;
@@ -72,6 +74,8 @@ export default ({
     }
   ];
 
+  const description = "And we have got answers to all of them. Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+
   if (!steps) steps = defaultSteps;
 
   return (
@@ -85,6 +89,7 @@ export default ({
           <TextContent>
             <Subheading>{subheading}</Subheading>
             <Heading>{heading}</Heading>
+            <Description>{description}</Description>
             <Steps>
               {steps.map((step, index) => (
                 <Step key={index}>

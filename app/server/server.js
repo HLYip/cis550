@@ -34,6 +34,16 @@ app.use(cors({credentials: true, origin: true}));
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use((_req, res, next) => {
+    // Website you wish to allow to connect
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.header('Access-Control-Allow-Credentials', 'true');
+    // Request headers you wish to allow
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
 // Route 1 - register as POST
 app.post('/signup', [
     check('username').trim().isLength({ min: 1 }).escape(),
@@ -64,7 +74,7 @@ app.post('/like', routes.addLike)
 
 app.delete('/like', routes.removeLike)
 
-app.get('/likes/:username', routes.getLikedRest)
+app.get('/likes', routes.getLikedRest)
 
 app.get('/restaurant',routes.getRestInfo)
 

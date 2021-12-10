@@ -19,6 +19,8 @@ import Health from 'pages/Health'
 import Explore from 'pages/Explore';
 import ExploreResults from 'pages/ExploreResults';
 import ScrollToTop from 'helpers/ScrollToTop';
+import Collections from 'pages/Collections'
+import About from 'pages/AboutUs'
 
 const initialState = {
 	authenticated: false,
@@ -72,6 +74,16 @@ ReactDOM.render(
 							path="/explore/"
 							render={() => (
 								<ExploreResults />
+							)}/>
+		<Route exact
+							path="/collection"
+							render={() => (
+								<Collections />
+							)}/>
+		<Route exact
+							path="/about"
+							render={() => (
+								<About />
 							)}/>
       </Switch>
 	  </ScrollToTop>

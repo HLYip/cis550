@@ -44,7 +44,7 @@ export default ({
   description = "And we have got answers to all of them. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
   faqs = [
     {
-      question: "Is lunch provided free of cost ?",
+      question: "How do we compute the score for each restaurant ?",
       answer:
         "Yes, it is, if you have a membership with us. Otherwise it is charged as per the menu. Some limits do apply as to how much items can be included in your lunch. This limit is enough for any one person and merely exists to discourage abusal of the system."
     },

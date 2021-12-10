@@ -33,14 +33,13 @@ const postLogin = async (username, password) => {
         cache: 'no-cache',
         headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
         },
+        mode: 'cors',
+        credentials: 'include',
         body: JSON.stringify({
             username,
             password,
-        }),
-        mode: 'cors',
-        credentials: "include"
+        })
     })
     var json = await res.json()
     return {status: res.status, result: json}
@@ -129,6 +128,22 @@ const getIsLike = async (user_id, business_id) => {
     return {status: res.status, result: json}
 } 
 
+const getCollections = async (user_id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/likes?user_id=${user_id}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+} 
+
+const getCovidData = async (state) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/covid?state=${state}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+} 
+
 export {
     getSearchResults,
     postSignup,
@@ -139,5 +154,7 @@ export {
     getStateInfo,
     postAddLike,
     deleteRemoveLike,
-    getIsLike
+    getIsLike,
+    getCollections,
+    getCovidData
 }

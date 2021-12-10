@@ -10,6 +10,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { getStateInfo } from "fetcher";
+import Charts from "components/charts/Charts";
 
 const Container = tw.div`relative`;
 const SingleColumn = tw.div`max-w-screen-xl mx-auto py-20 lg:py-24`;
@@ -126,7 +127,7 @@ export default () => {
             <button onClick={changeState}>Search</button>
           </Actions>
         </HeaderRow>
-      <Paper sx={{ width: '100%' }}>
+      <Paper sx={{ width: '100%', marginBottom: '100px' }}>
         <TableContainer sx={{ maxHeight: 440, marginTop: '30px' }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -185,6 +186,7 @@ export default () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      <Charts state={state}/>
       </SingleColumn>
     </Container>
   );

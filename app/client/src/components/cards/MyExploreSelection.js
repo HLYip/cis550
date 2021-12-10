@@ -54,7 +54,7 @@ export default ({
       name: "Hair Salons",
     },
     {
-      imageSrc: "https://www.vectorstock.com/royalty-free-vector/art-entertainment-vector-244273",
+      imageSrc: "https://www.antelopevalley.com/images/pages/72.jpg",
       name: "Arts & Entertainment",
     },
     {
