@@ -20,7 +20,7 @@ function HomePage(props) {
       <TabGrid
         heading={
           <>
-            Today's <HighlightedText>Recommendation</HighlightedText>
+            Today's <HighlightedText>Recommendation.</HighlightedText>
           </>
         }
       />

@@ -169,7 +169,7 @@ export default ({
                     </CardHoverOverlay>
                   </CardImageContainer>
                   <CardText>
-                    <CardTitle>{card.resturants}</CardTitle>
+                    <CardTitle>{card.restaurant}</CardTitle>
                     <CardContent>{card.address}, {card.city}, {card.state}</CardContent>
                     <CardRating2>
                       <HealthIcon color={trans_color[card.trans_level]}/>

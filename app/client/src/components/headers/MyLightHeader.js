@@ -37,9 +37,9 @@ function DefaultHeader(props) {
 
     const navLinks = [
       <NavLinks key={0}>
-        <NavLink href="/#">Health</NavLink>
-        <NavLink href="/#">Explore</NavLink>
-        <NavLink href="/#">About</NavLink>
+        <NavLink href="/health">Health</NavLink>
+        <NavLink href="/explore">Explore</NavLink>
+        <NavLink href="/about">About</NavLink>
       </NavLinks>,
       <NavLinks key={1}>
         <NavLink href="/login" tw="lg:ml-12!">

@@ -157,7 +157,7 @@ async function stateinfo(req,res){
         end as vaccination_level
         from health_index left join temp on health_index.county = temp.county
         group by county
-        order by health_index.county asc`, function (error, results, fields)  {
+        order by average_rating desc`, function (error, results, fields)  {
             if (error) {
                 console.log(error)
                 res.json({ error: error })
@@ -168,7 +168,7 @@ async function stateinfo(req,res){
     }else{
         connection.query(`SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS health_score,state_abbr
         FROM Health
-        GROUP BY ${state}`,function (error, results, fields) {
+        GROUP BY state`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
