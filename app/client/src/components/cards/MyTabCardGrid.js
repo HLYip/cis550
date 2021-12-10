@@ -11,7 +11,7 @@ import HealthIcon from "components/misc/HealthIcon";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
 
-import { getTodayRecommendation } from "fetcher";
+import { getTodayRecommendation, getRestInfo } from "fetcher";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
 const Header = tw.h2`text-3xl sm:text-4xl font-black tracking-wide text-center`;
@@ -82,7 +82,7 @@ export default ({
   const trans_color = {"low": "#00A300", "moderate": "#21B6A8", "substantial": "#FCD12A", "high": "#DC1C13"}
   const [activeTab, setActiveTab] = useState(tabsKeys[0]);
   const [tabs, setTabs] = useState([]);
-  const [checkId, setId] = useState(false)
+  const [rest, setRest] = useState(0)
 
   useEffect(() => {
     getTodayRecommendation(activeTab==="Coffee & Tea"?"Coffee %26 Tea":activeTab).then(recResult => {
@@ -94,9 +94,14 @@ export default ({
     })
   }, [activeTab])
 
-  const checkDetails = (id) => {
+  const checkDetails = async (id) => {
     console.log(id)
-    setId(true)
+    const restResults = await getRestInfo(id)
+    if (restResults.status === 200) {
+      setRest(restResults.result.results[0])
+    } else {
+      alert("Error, please contact developers")
+    }
   }
 
   return (
@@ -170,10 +175,10 @@ export default ({
                       <HealthIcon color={trans_color[card.trans_level]}/>
                       {trans[card.trans_level]} ({card.trans_level})
                     </CardRating2>
-                    {checkId &&
+                    {rest !== 0 &&
                       <Redirect to={{
                         pathname: '/restaurant',
-                        // state: { results: results2 }
+                        state: rest
                       }}/>
                     }
                   </CardText>

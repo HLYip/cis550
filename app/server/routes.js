@@ -266,7 +266,7 @@ async function search(req, res) {
                 stars, review_count, is_open, hours
         FROM rest_score R
         JOIN health_score ON R.county = health_score.county AND R.state = health_score.state_abbr
-        WHERE business_id in (
+        WHERE business_id not in (
             select distinct business_id
             from Categories
             where category in (${nonrestaurants})
@@ -373,11 +373,11 @@ async function getRestInfo(req,res){
         )Select * from Restaurants join county_health
             on Restaurants.county = county_health.county
             join Attributes A on Restaurants.business_id = A.business_id
-            where Restaurants.business_id =  ${bus_id}`,function (error, results, fields) {
+            where Restaurants.business_id = '${bus_id}'`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
-            res.json({ error: error })
+            res.status(500).json({ error: error })
         } else if (results) {
             res.json({ results: results })   
         }

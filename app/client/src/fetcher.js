@@ -69,10 +69,19 @@ const getTodayRecommendation = async (category) => {
     return {status: res.status, result: json}
 }
 
+const getRestInfo = async (id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/restaurant?bus_id=${id}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
+
 export {
     getSearchResults,
     postSignup,
     postLogin,
     postLogout,
-    getTodayRecommendation
+    getTodayRecommendation,
+    getRestInfo
 }

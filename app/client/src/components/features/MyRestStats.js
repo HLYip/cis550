@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import tw from "twin.macro";
 import styled from "styled-components";
-import { css } from "styled-components/macro"; //eslint-disable-line
 import { SectionHeading } from "components/misc/Headings.js";
+import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24`;
@@ -20,52 +20,83 @@ const Image = styled.div(props => [
 const TextContent = tw.div`lg:py-8`;
 
 const Heading = tw(SectionHeading)`text-left text-3xl sm:text-4xl lg:text-5xl text-center md:text-left leading-tight`;
-const Description = tw.p`text-center md:text-left text-sm md:text-base lg:text-lg font-medium leading-relaxed text-secondary-100 mt-4`
+const Description = tw.div`text-center md:text-left text-sm md:text-base lg:text-lg font-medium leading-relaxed text-secondary-100 mt-4`
 
-const Statistics = tw.div`mt-6 lg:mt-8 xl:mt-16 flex flex-wrap`
+const Statistics = tw.div`flex flex-wrap`
 const Statistic = tw.div`text-lg sm:text-2xl lg:text-3xl w-1/2 mt-4 lg:mt-10 text-center md:text-left`
 const Value = tw.div`font-bold text-primary-500`
 const Key = tw.div`font-medium text-gray-700`
+const PrimaryButton = styled(PrimaryButtonBase)(props => [
+  tw`text-sm inline-block mr-2 mt-2`,
+  props.buttonRounded && tw`rounded-full`
+]);
 
-export default ({textOnLeft = false}) => {
+export default ({textOnLeft = false, restaurant}) => {
   // The textOnLeft boolean prop can be used to display either the text on left or right side of the image.
   //Change the statistics variable as you like, add or delete objects
-  const statistics = [
-    {
-      key: "Countries",
-      value: "192",
-    },
-    {
-      key: "Hotels",
-      value: "479",
-    },
-    {
-      key: "Rooms",
-      value: "2093",
-    },
-    {
-      key: "Workers",
-      value: "10347",
-    }
-  ]
+  let hours = {}
+
+  // parse hours from string into objects
+  if (restaurant && restaurant.hours) {
+    let h = restaurant.hours
+    h = h.replaceAll("{", "").replaceAll("'", "").replaceAll("}", "")
+    const array = h.split(", ")
+    array.map(day => {
+      const dayArray = day.split(": ")
+      hours[dayArray[0]] = dayArray[1]
+    })
+  }
 
   return (
     <Container>
       <TwoColumn>
         <ImageColumn>
-          <Image imageSrc="https://images.unsplash.com/photo-1582564286939-400a311013a2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1024&q=80" />
+          <Image imageSrc="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80" />
         </ImageColumn>
         <TextColumn textOnLeft={textOnLeft}>
           <TextContent>
-            <Heading>We have the best service.</Heading>
-            <Description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</Description>
-            <Statistics>
-              {statistics.map((statistic, index) => (
-              <Statistic key={index}>
-                <Value>{statistic.value}</Value>
-                <Key>{statistic.key}</Key>
-              </Statistic>
+            <Heading>{restaurant.name}</Heading>
+            <div tw="flex mt-5 items-end">
+              {/* TODO: Like button put here, remove this line below */}
+              <button>Like</button>
+            </div>
+            <div tw="mt-5 mb-5">
+            {Object.keys(restaurant).map((key, index) => {
+              if (restaurant[key]===1){
+                return (
+                  <PrimaryButton>
+                    {key.replace("_"," ")}
+                  </PrimaryButton>
+                )
+              }
+            })}
+            </div>
+            <Description>
+              <p tw="font-bold mb-3">Opening hours:</p>
+              {Object.keys(hours).map((day, index) => (
+                <div key={index}>   
+                  {day}: {hours[day]}
+                  <br/>
+                </div>
               ))}
+            </Description>
+            <Statistics>
+              <Statistic key={0}>
+                <Value>{restaurant.stars}</Value>
+                <Key>Stars</Key>
+              </Statistic>
+              <Statistic key={1}>
+                <Value>{restaurant.review_count}</Value>
+                <Key>Reviews</Key>
+              </Statistic>
+              <Statistic key={2}>
+                <Value>{restaurant.average_pos_rate}%</Value>
+                <Key>Positivity Rate</Key>
+              </Statistic>
+              <Statistic key={3}>
+                <Value>{restaurant.average_vacc_pct}%</Value>
+                <Key>Vaccination Rate</Key>
+              </Statistic>
             </Statistics>
           </TextContent>
         </TextColumn>
