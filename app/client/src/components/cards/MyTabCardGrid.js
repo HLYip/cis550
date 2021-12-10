@@ -58,7 +58,7 @@ const CardButton = tw(PrimaryButtonBase)`text-sm`;
 const CardReview = tw.div`font-medium text-xs text-gray-600`;
 
 const CardText = tw.div`p-4 text-gray-900`;
-const CardTitle = tw.h5`text-lg font-semibold group-hover:text-primary-500`;
+const CardTitle = tw.h5`text-lg font-semibold group-hover:text-primary-500 min-h-16`;
 const CardContent = tw.p`mt-1 text-sm font-medium text-gray-600 min-h-10`;
 const CardPrice = tw.p`mt-4 text-xl font-bold`;
 

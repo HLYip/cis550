@@ -9,6 +9,7 @@ import Header, { NavLink, NavLinks, PrimaryLink as PrimaryLinkBase, LogoLink, Na
 
 const PrimaryLink = tw(PrimaryLinkBase)`rounded-full`
 
+
 function DarkHeader(props, {
     page = 1,
     pagesize = 16
@@ -27,6 +28,8 @@ function DarkHeader(props, {
         console.log(logoutResult)
         alert('Error. Please contact developers')
       } else {
+        window.localStorage.setItem('authenticated', false);
+        window.localStorage.setItem('userId', '');
         props.setGlobalState(prevGlobalState => ({
           authenticated: false,
           prefer_health: 1,
@@ -36,12 +39,14 @@ function DarkHeader(props, {
       }
     }
 
+    const defaultNav = (<NavLinks key={0}>
+      <NavLink href="/health">Health</NavLink>
+      <NavLink href="/explore">Explore</NavLink>
+      <NavLink href="/about">About</NavLink>
+    </NavLinks>)
+
      const navLinks = [
-     <NavLinks key={0}>
-         <NavLink href="/health">Health</NavLink>
-         <NavLink href="/explore">Explore</NavLink>
-         <NavLink href="/about">About</NavLink>
-     </NavLinks>,
+     defaultNav,
      <NavLinks key={1}>
          <NavLink href="/login" tw="lg:ml-12!">
              Login
@@ -53,12 +58,7 @@ function DarkHeader(props, {
      ];
 
      const navLinks2 = [
-      //   <NavLinks key={1}>
-      //     <NavLink href="/#">About</NavLink>
-      //     <NavLink href="/#">Blog</NavLink>
-      //     <NavLink href="/#">Pricing</NavLink>
-      //     <NavLink href="/#">Contact Us</NavLink>
-      //   </NavLinks>,
+       defaultNav,
         <NavLinks key={1}>
           <NavLink tw="lg:ml-12!" onClick={logout}>
             Logout
@@ -69,7 +69,7 @@ function DarkHeader(props, {
         </NavLinks>
       ];
  
-     if (props.globalState.authenticated) {
+     if (window.localStorage.getItem('authenticated')==='true') {
         return (
           <StyledHeader links={navLinks2} />
         )

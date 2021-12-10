@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { withGlobalState } from 'react-globally'
 import tw from "twin.macro";
 import styled from "styled-components";
 import { SectionHeading } from "components/misc/Headings.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeartBroken } from "@fortawesome/free-solid-svg-icons";
-import {faBuilding,faToggleOff,faToggleOn} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { postAddLike } from "fetcher";
+import { postAddLike, deleteRemoveLike, getIsLike } from "fetcher";
 
 
 const Container = tw.div`relative`;
@@ -37,11 +37,12 @@ const PrimaryButton = styled(PrimaryButtonBase)(props => [
   props.buttonRounded && tw`rounded-full`
 ]);
 
-export default ({textOnLeft = false, restaurant}) => {
+function Stats(props) {
   // The textOnLeft boolean prop can be used to display either the text on left or right side of the image.
   //Change the statistics variable as you like, add or delete objects
   let hours = {}
   const [liked, setliked] = useState(false)
+  const { restaurant } = props
   // parse hours from string into objects
   if (restaurant && restaurant.hours) {
     let h = restaurant.hours
@@ -53,14 +54,37 @@ export default ({textOnLeft = false, restaurant}) => {
     })
   }
 
-  const toggle = () => {
-    // const likeResults = await postAddLike(input, category, page, pagesize)
-    // if (searchResults.status === 200) {
-    //   setResults(searchResults.result.results)
-    // } else {
-    //   alert("error")
-    // }
-    setliked(!liked)
+  const user_id = window.localStorage.getItem('userId');
+
+  useEffect(() => {
+    if (user_id) {
+    getIsLike(user_id, restaurant.business_id).then(likeResult => {
+      if (likeResult.status === 200) {
+        console.log(typeof(likeResult.result.results))
+        setliked(likeResult.result.results)
+      } else {
+        alert('Error. Please contact developers')
+      }
+    })
+  }
+  }, [user_id])
+
+  const toggle = async () => {
+    if (!liked) {
+      const likeResults = await postAddLike(restaurant.business_id, user_id)
+      if (likeResults.status === 200) {
+        setliked(!liked)
+      } else {
+        alert("error")
+      }
+    } else {
+      const likeResults = await deleteRemoveLike(restaurant.business_id, user_id)
+      if (likeResults.status === 200) {
+        setliked(!liked)
+      } else {
+        alert("error")
+      }
+    }
   };
 
 
@@ -70,34 +94,31 @@ export default ({textOnLeft = false, restaurant}) => {
         <ImageColumn>
           <Image imageSrc="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80" />
         </ImageColumn>
-        <TextColumn textOnLeft={textOnLeft}>
+        <TextColumn>
           <TextContent>
             <Heading>{restaurant.name}</Heading>
-            <div tw="flex mt-5 items-end">
-              <div className="container">
-        <center>
-          
-          <div
-            className="container"
-            style={{ border: "2px solid white", width: "10%"}}
-            onClick={() => toggle()}
-          >
-            {liked === false ? (
-              <FontAwesomeIcon icon={faHeartBroken} size='2x' style={{color:"black"}} />
-            ) : (
-              <FontAwesomeIcon icon={faHeart} size='2x' style={{color:"red"}}/>
-            )}
-          </div>
-          
-          
-        </center>
-      </div>
-            </div>
+            {user_id && <div tw="flex mt-5">
+              <center>
+                <div onClick={() => toggle()}>
+                  {(liked === false ) ? (
+                    <div tw="flex items-center" style={{border: "2px solid #718096", padding: "8px", borderRadius: "5px"}}>
+                      <p tw="mr-2 text-gray-600 text-xl font-semibold">Like</p>
+                      <FontAwesomeIcon icon={faHeartBroken} size='2x' tw="text-gray-600" />
+                    </div>
+                  ) : (
+                    <div tw="flex items-center" style={{border: "2px solid red", padding: "8px", borderRadius: "5px"}}>
+                      <p tw="mr-2 text-red-600 text-xl font-semibold">Like</p>
+                      <FontAwesomeIcon icon={faHeart} size='2x' style={{color:"red"}}/>
+                    </div>
+                  )}
+                </div>
+              </center>
+            </div>}
             <div tw="mt-5 mb-5">
             {Object.keys(restaurant).map((key, index) => {
               if (restaurant[key]===1){
                 return (
-                  <PrimaryButton>
+                  <PrimaryButton key={index}>
                     {key.replace("_"," ")}
                   </PrimaryButton>
                 )
@@ -105,7 +126,7 @@ export default ({textOnLeft = false, restaurant}) => {
             })}
             </div>
             <Description>
-              <p tw="font-bold mb-3">Opening hours:</p>
+              {restaurant.hours && <p tw="font-bold mb-3">Opening hours:</p>}
               {Object.keys(hours).map((day, index) => (
                 <div key={index}>   
                   {day}: {hours[day]}
@@ -137,3 +158,5 @@ export default ({textOnLeft = false, restaurant}) => {
     </Container>
   );
 };
+
+export default withGlobalState(Stats)

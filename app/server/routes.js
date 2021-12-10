@@ -476,6 +476,29 @@ async function covid (req, res){
     
 }
 
+async function isLike(req, res) {
+    if (!req.query.user_id && !req.query.business_id) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        connection.query(`
+        SELECT * FROM Likes
+        WHERE user_id = '${req.query.user_id}' AND business_id = '${req.query.business_id}'
+        `, function(error, results) {
+            if (error) {
+                res.status(500).json({ description: error })
+            } else {
+                let r;
+                if (results.length == 0) {
+                    r = false
+                } else {
+                    r = true
+                }
+                res.status(200).json({  results: r })
+            } 
+        })
+    }
+}
+
 async function logout(req, res) {
     req.logout();
     req.session.destroy();
@@ -497,5 +520,6 @@ module.exports = {
     removeLike,
     getLikedRest,
     logout,
-    getRestInfo
+    getRestInfo,
+    isLike
 }

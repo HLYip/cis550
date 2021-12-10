@@ -14,8 +14,8 @@ const postSignup = async (username, password, prefer_health) => {
         cache: 'no-cache',
         headers: {
             'Content-Type': 'application/json',
+            Accept: 'application/json',
         },
-        referrerPolicy: 'no-referrer',
         body: JSON.stringify({
             username,
             password,
@@ -33,8 +33,8 @@ const postLogin = async (username, password) => {
         cache: 'no-cache',
         headers: {
             'Content-Type': 'application/json',
+            Accept: 'application/json',
         },
-        referrerPolicy: 'no-referrer',
         body: JSON.stringify({
             username,
             password,
@@ -103,6 +103,32 @@ const postAddLike = async (business_id, user_id) => {
     return {status: res.status, result: json}
 }
 
+const deleteRemoveLike = async (business_id, user_id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/like`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify({
+            business_id,
+            user_id,
+        }),
+        mode: 'cors',
+        credentials: "include"
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
+
+const getIsLike = async (user_id, business_id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/like?user_id=${user_id}&business_id=${business_id}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+} 
+
 export {
     getSearchResults,
     postSignup,
@@ -111,5 +137,7 @@ export {
     getTodayRecommendation,
     getRestInfo,
     getStateInfo,
-    postAddLike
+    postAddLike,
+    deleteRemoveLike,
+    getIsLike
 }

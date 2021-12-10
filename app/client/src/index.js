@@ -16,6 +16,9 @@ import Signup from './pages/Signup'
 import Login from './pages/Login'
 import RestDetails from 'pages/RestDetails';
 import Health from 'pages/Health'
+import Explore from 'pages/Explore';
+import ExploreResults from 'pages/ExploreResults';
+import ScrollToTop from 'helpers/ScrollToTop';
 
 const initialState = {
 	authenticated: false,
@@ -28,7 +31,8 @@ ReactDOM.render(
   <Provider globalState={initialState}>
   <div>
     <Router>
-      <Switch>
+		<ScrollToTop>
+      	<Switch>
         <Route exact
 							path="/"
 							render={() => (
@@ -59,7 +63,18 @@ ReactDOM.render(
 							render={() => (
 								<Health />
 							)}/>
+		<Route exact
+							path="/explore"
+							render={() => (
+								<Explore />
+							)}/>
+		<Route 
+							path="/explore/"
+							render={() => (
+								<ExploreResults />
+							)}/>
       </Switch>
+	  </ScrollToTop>
     </Router>
   </div>
   </Provider>,

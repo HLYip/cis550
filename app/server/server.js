@@ -28,9 +28,9 @@ app.use(session({
 }))
 
 app.use(cookieParser());
-app.use(cors({credentials: true, origin: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors({credentials: true, origin: true}));
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -67,6 +67,8 @@ app.delete('/like', routes.removeLike)
 app.get('/likes/:username', routes.getLikedRest)
 
 app.get('/restaurant',routes.getRestInfo)
+
+app.get('/like',routes.isLike)
 
 app.post('/logout', routes.logout)
 
