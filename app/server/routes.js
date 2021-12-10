@@ -157,7 +157,7 @@ async function stateinfo(req,res){
         end as vaccination_level
         from health_index left join temp on health_index.county = temp.county
         group by county
-        order by health_index.county asc`, function (error, results, fields)  {
+        order by average_rating desc`, function (error, results, fields)  {
             if (error) {
                 console.log(error)
                 res.json({ error: error })
@@ -168,7 +168,7 @@ async function stateinfo(req,res){
     }else{
         connection.query(`SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS health_score,state_abbr
         FROM Health
-        GROUP BY ${state}`,function (error, results, fields) {
+        GROUP BY state`,function (error, results, fields) {
 
         if (error) {
             console.log(error)
@@ -344,14 +344,14 @@ async function removeLike(req, res) {
 }
 
 async function getLikedRest(req, res) {
-    if (!req.params.username) {
+    if (!req.query.user_id) {
         res.status(400).json({ description: 'Invalid input' });
     } else {
-        const username = req.params.username
+        const user_id = req.query.user_id
         connection.query(`
-        SELECT business_id FROM Users
-        NATURAL JOIN Likes
-        WHERE username = '${username}'
+        SELECT * FROM Likes
+        NATURAL JOIN Restaurants
+        WHERE user_id='${user_id}'
         `, function(error, results) {
             if (error) {
                 res.status(500).json({ description: error })
@@ -476,6 +476,29 @@ async function covid (req, res){
     
 }
 
+async function isLike(req, res) {
+    if (!req.query.user_id && !req.query.business_id) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        connection.query(`
+        SELECT * FROM Likes
+        WHERE user_id = '${req.query.user_id}' AND business_id = '${req.query.business_id}'
+        `, function(error, results) {
+            if (error) {
+                res.status(500).json({ description: error })
+            } else {
+                let r;
+                if (results.length == 0) {
+                    r = false
+                } else {
+                    r = true
+                }
+                res.status(200).json({  results: r })
+            } 
+        })
+    }
+}
+
 async function logout(req, res) {
     req.logout();
     req.session.destroy();
@@ -497,5 +520,6 @@ module.exports = {
     removeLike,
     getLikedRest,
     logout,
-    getRestInfo
+    getRestInfo,
+    isLike
 }

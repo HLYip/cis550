@@ -103,6 +103,8 @@ function Signup(props, {
       } else {
         const loginResult = await postLogin(username, password)
         if (loginResult.status === 200) {
+          window.localStorage.setItem('authenticated', true);
+          window.localStorage.setItem('userId', loginResult.result.userId);
           props.setGlobalState(prevGlobalState => (loginResult.result))
         } 
         setSuccess(true)        

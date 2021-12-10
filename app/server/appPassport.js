@@ -32,7 +32,7 @@ module.exports = function(passport) {
 
   passport.serializeUser((user, done) => {
     // eslint-disable-next-line no-underscore-dangle
-    console.log('serializing user '+user)
+    console.log('serializing user '+user.user_id)
     done(null, user.user_id);
   });
 
