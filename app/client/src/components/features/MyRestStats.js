@@ -3,6 +3,12 @@ import tw from "twin.macro";
 import styled from "styled-components";
 import { SectionHeading } from "components/misc/Headings.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeartBroken } from "@fortawesome/free-solid-svg-icons";
+import {faBuilding,faToggleOff,faToggleOn} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { postAddLike } from "fetcher";
+
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24`;
@@ -35,7 +41,7 @@ export default ({textOnLeft = false, restaurant}) => {
   // The textOnLeft boolean prop can be used to display either the text on left or right side of the image.
   //Change the statistics variable as you like, add or delete objects
   let hours = {}
-
+  const [liked, setliked] = useState(false)
   // parse hours from string into objects
   if (restaurant && restaurant.hours) {
     let h = restaurant.hours
@@ -47,6 +53,17 @@ export default ({textOnLeft = false, restaurant}) => {
     })
   }
 
+  const toggle = () => {
+    // const likeResults = await postAddLike(input, category, page, pagesize)
+    // if (searchResults.status === 200) {
+    //   setResults(searchResults.result.results)
+    // } else {
+    //   alert("error")
+    // }
+    setliked(!liked)
+  };
+
+
   return (
     <Container>
       <TwoColumn>
@@ -57,8 +74,24 @@ export default ({textOnLeft = false, restaurant}) => {
           <TextContent>
             <Heading>{restaurant.name}</Heading>
             <div tw="flex mt-5 items-end">
-              {/* TODO: Like button put here, remove this line below */}
-              <button>Like</button>
+              <div className="container">
+        <center>
+          
+          <div
+            className="container"
+            style={{ border: "2px solid white", width: "10%"}}
+            onClick={() => toggle()}
+          >
+            {liked === false ? (
+              <FontAwesomeIcon icon={faHeartBroken} size='2x' style={{color:"black"}} />
+            ) : (
+              <FontAwesomeIcon icon={faHeart} size='2x' style={{color:"red"}}/>
+            )}
+          </div>
+          
+          
+        </center>
+      </div>
             </div>
             <div tw="mt-5 mb-5">
             {Object.keys(restaurant).map((key, index) => {

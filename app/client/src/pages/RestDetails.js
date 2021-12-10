@@ -22,7 +22,7 @@ export default function RestDetails() {
         <DarkHeader />
       </Container>
       <Stats restaurant={state}/>
-      <Map rlat={state.r_lat} rlong={state.r_long}/>
+      <Map rlat={state.r_lat} rlong={state.r_long} rname={state.name} raddress={state.address}/>
       <Footer />
     </AnimationRevealPage>
   );
