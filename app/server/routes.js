@@ -266,7 +266,7 @@ async function search(req, res) {
                 stars, review_count, is_open, hours
         FROM rest_score R
         JOIN health_score ON R.county = health_score.county AND R.state = health_score.state_abbr
-        WHERE business_id in (
+        WHERE business_id not in (
             select distinct business_id
             from Categories
             where category in (${nonrestaurants})

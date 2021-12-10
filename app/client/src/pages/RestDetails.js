@@ -7,6 +7,7 @@ import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import DarkHeader from "components/headers/MyDarkHeader"
 import Footer from "components/footers/MyMiniCenteredFooter";
 import Stats from "components/features/MyRestStats"
+import Map from "components/features/MyRestMaps"
 
 const Container = styled.div`
   ${tw`relative -mt-8`}
@@ -21,6 +22,7 @@ export default function RestDetails() {
         <DarkHeader />
       </Container>
       <Stats restaurant={state}/>
+      <Map />
       <Footer />
     </AnimationRevealPage>
   );

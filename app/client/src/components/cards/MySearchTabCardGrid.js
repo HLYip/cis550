@@ -9,7 +9,7 @@ import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import { ReactComponent as StarIcon } from "images/star-icon.svg";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
-import { getSearchResults } from "fetcher.js";
+import { getSearchResults, getRestInfo } from "fetcher.js";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
 const TabContent = tw(motion.div)`flex flex-wrap sm:-mr-10 md:-mr-6 lg:-mr-12`;
@@ -81,6 +81,7 @@ export default ({
    */
   const [input, setInput] = useState('')
   const [results2, setResults] = useState([])
+  const [rest, setRest] = useState(0)
   // capture text input
   const updateCity = (e) => {
       setInput(e.target.value)
@@ -95,6 +96,17 @@ export default ({
       alert("error")
     }
   }
+
+  const checkDetails = async (id) => {
+    console.log(id)
+    const restResults = await getRestInfo(id)
+    if (restResults.status === 200) {
+      setRest(restResults.result.results[0])
+    } else {
+      alert("Error, please contact developers")
+    }
+  }
+
   return (
     <Container>
       <ContentWithPaddingXl>  
@@ -107,7 +119,7 @@ export default ({
         <TabContent>
         {results.map((card, index) => (
           <CardContainer key={index}>
-            <Card className="group" href={card.business_id} initial="rest" whileHover="hover" animate="rest">
+            <Card className="group" initial="rest" whileHover="hover" animate="rest">
               <CardImageContainer imageSrc={getRandomImages()}>
                 <CardRatingContainer>
                   <CardRating>
@@ -129,13 +141,19 @@ export default ({
                   }}
                   transition={{ duration: 0.3 }}
                 >
-                  <CardButton>More Details</CardButton>
+                  <CardButton onClick={()=>checkDetails(card.business_id)}>More Details</CardButton>
                 </CardHoverOverlay>
               </CardImageContainer>
               <CardText>
                 <CardTitle>{card.name}</CardTitle>
                 <CardContent>{card.address}, {card.city}, {card.state}</CardContent>
                 {/* <CardPrice>should be a number</CardPrice> */}
+                {rest !== 0 &&
+                  <Redirect to={{
+                    pathname: '/restaurant',
+                    state: rest
+                  }}/>
+                }
               </CardText>
             </Card>
           </CardContainer>

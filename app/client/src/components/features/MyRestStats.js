@@ -56,6 +56,10 @@ export default ({textOnLeft = false, restaurant}) => {
         <TextColumn textOnLeft={textOnLeft}>
           <TextContent>
             <Heading>{restaurant.name}</Heading>
+            <div tw="flex mt-5 items-end">
+              {/* TODO: Like button put here, remove this line below */}
+              <button>Like</button>
+            </div>
             <div tw="mt-5 mb-5">
             {Object.keys(restaurant).map((key, index) => {
               if (restaurant[key]===1){
