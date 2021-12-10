@@ -77,11 +77,30 @@ const getRestInfo = async (id) => {
     return {status: res.status, result: json}
 }
 
+const postAddLike = async (business_id, user_id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify({
+            business_id,
+            user_id,
+        }),
+        mode: 'cors',
+        credentials: "include"
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
+
 export {
     getSearchResults,
     postSignup,
     postLogin,
     postLogout,
     getTodayRecommendation,
-    getRestInfo
+    getRestInfo,
+    postAddLike
 }
