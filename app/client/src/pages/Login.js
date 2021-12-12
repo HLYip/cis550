@@ -9,7 +9,7 @@ import { refreshTokenSetup } from "components/login/refreshToken";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import illustration from "images/login-illustration.svg";
-import logo from "images/logo.svg";
+import logo from "images/logo.png";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as LoginIcon } from "feather-icons/dist/icons/log-in.svg";
@@ -48,7 +48,7 @@ const IllustrationImage = styled.div`
 function Login(props, {
   logoLinkUrl = "/",
   illustrationImageSrc = illustration,
-  headingText = "Sign In To Treact",
+  headingText = "Sign In To YYDX",
   socialButtons = [
     {
       iconImageSrc: googleIconImageSrc,
@@ -115,7 +115,6 @@ function Login(props, {
     } else if (loginResult.status !== 200) {
       alert("Internal error. Please notify developers")
     } else {
-      refreshTokenSetup(res);
       window.localStorage.setItem('authenticated', true);
       window.localStorage.setItem('userId', res.id);
       setSuccess(true)        

@@ -439,8 +439,9 @@ async function getRestInfo(req,res){
 async function todayrecommendation (req, res){
     
     const category = req.query.category 
+    const limit = req.query.limit?req.query.limit:8
     
-    if(req.query.category){
+    if(req.query.category && req.query.limit){
         connection.query(`WITH Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
             FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
          TABLE1 AS(SELECT category, MAX(review_count) as popularity
@@ -453,7 +454,7 @@ async function todayrecommendation (req, res){
     SELECT DISTINCT (name) as restaurant, address, TABLE2.city, TABLE2.state, trans_level, photo, business_id
     FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
     WHERE TABLE1.category = '${category}'
-    LIMIT 8; `,function (error, results, fields) {
+    LIMIT ${limit}; `,function (error, results, fields) {
 
            if (error) {
                console.log(error)

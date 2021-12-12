@@ -12,7 +12,7 @@ import { refreshTokenSetup } from "components/login/refreshToken";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import illustration from "images/signup-illustration.svg";
-import logo from "images/logo.svg";
+import logo from "images/logo.png";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as SignUpIcon } from "feather-icons/dist/icons/user-plus.svg";
@@ -52,7 +52,7 @@ const IllustrationImage = styled.div`
 function Signup(props, {
   logoLinkUrl = "/",
   illustrationImageSrc = illustration,
-  headingText = "Sign Up For Treact",
+  headingText = "Sign Up For YYDX",
   socialButtons = [
     {
       iconImageSrc: googleIconImageSrc,

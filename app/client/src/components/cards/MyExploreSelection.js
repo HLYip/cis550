@@ -75,7 +75,7 @@ export default ({
   const [path, setPath] = useState('')
 
   const explore = (category) => {
-    getTodayRecommendation(category.replace("&", "%26")).then(recResult => {
+    getTodayRecommendation(category.replace("&", "%26"), 16).then(recResult => {
       if (recResult.status === 200) {
         setPath(category)
         setResults(recResult.result.results)
