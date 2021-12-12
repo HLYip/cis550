@@ -26,6 +26,8 @@ function DefaultHeader(props) {
         console.log(logoutResult)
         alert('Error. Please contact developers')
       } else {
+        window.localStorage.setItem('authenticated', false);
+        window.localStorage.setItem('userId', '');
         props.setGlobalState(prevGlobalState => ({
           authenticated: false,
           prefer_health: 1,
@@ -35,12 +37,14 @@ function DefaultHeader(props) {
       }
     }
 
+    const defaultNav = (<NavLinks key={0}>
+      <NavLink href="/health">Health</NavLink>
+      <NavLink href="/explore">Explore</NavLink>
+      <NavLink href="/about">About</NavLink>
+    </NavLinks>)
+
     const navLinks = [
-      <NavLinks key={0}>
-        <NavLink href="/#">Health</NavLink>
-        <NavLink href="/#">Explore</NavLink>
-        <NavLink href="/#">About</NavLink>
-      </NavLinks>,
+      defaultNav,
       <NavLinks key={1}>
         <NavLink href="/login" tw="lg:ml-12!">
           Login
@@ -52,22 +56,18 @@ function DefaultHeader(props) {
     ];
 
     const navLinks2 = [
-        <NavLinks key={0}>
-          <NavLink href="/#">Health</NavLink>
-          <NavLink href="/#">Explore</NavLink>
-          <NavLink href="/#">About</NavLink>
-        </NavLinks>,
+        defaultNav,
         <NavLinks key={1}>
           <NavLink tw="lg:ml-12!" onClick={logout}>
             Logout
           </NavLink>
-          <PrimaryLink css={buttonRoundedCss} href="#">
+          <PrimaryLink css={buttonRoundedCss} href="/collection">
             Collection
           </PrimaryLink>
         </NavLinks>
       ];
 
-    if (props.globalState.authenticated) {
+    if (window.localStorage.getItem('authenticated')==='true') {
       return (
         <StyledHeader links={navLinks2} />
       )

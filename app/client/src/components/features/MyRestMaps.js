@@ -13,16 +13,11 @@ export default (props) => {
   const rlong = props.rlong
   const rname = props.rname
   const raddress = props.raddress
-  console.log(rlong)
-  console.log(rlat)
   const map = `https://www.google.com/maps/embed/v1/place?key=AIzaSyCNXhRjNrie_08eXevDLR9UCPtcCGc0O90&q=${rname} ${raddress}&center=${rlat},${rlong}&zoom=18`
   return (
     <Container>
       <SingleColumn>
-        {/* TODO: insert map here */}
-        <iframe width= "1300" height="500" src={map}>
-        
-      </iframe>  
+        <iframe title="map"width= "1300" height="500" src={map} />
       </SingleColumn>
     </Container>
   );

@@ -97,6 +97,8 @@ function Login(props, {
       } else if (loginResult.status !== 200) {
         alert("Internal error. Please notify developers")
       } else {
+        window.localStorage.setItem('authenticated', true);
+        window.localStorage.setItem('userId', loginResult.result.userId);
         props.setGlobalState(prevGlobalState => (loginResult.result))
         setSuccess(true)
       }
