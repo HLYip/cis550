@@ -230,108 +230,108 @@ async function stateinfo(req,res){
     }
 }
 
-
-
-async function restlocation (req, res){
-
-    const lat = req.query.lat
-    const long = req.query.long
-    const category = req.query.category
-
-    if(req.query.lat && req.query.long && req.query.category){
-        connection.query(`with a as (
-            select * from Categories natural join Restaurants
-        )
-        select a.business_id,a.name,a.stars,
-        case when stars >4 and review_count > 20 then 'highly recommend'
-        when stars >3 and review_count > 5 then 'recommend'
-        else 'not recommend'
-        end as recommendation
-        
-        from a
-        where abs(a.r_lat - ${lat}) <= 0.01  
-        and abs(a.r_long - (${long})) <= 0.01  
-        and a.category Like '%${category}%' 
-        order by a.stars,a.review_count desc `,function (error, results, fields) {
-
-           if (error) {
-               console.log(error)
-               res.json({ error: error })
-           } else if (results) {
-               res.json({ results: results })   
-           }
-       });
-
-    }else{
-        connection.query(`select * from Restaurants
-        where stars>=4 and is_open = 1
-        and business_id in (
+async function restlocation(req, res) {
+    const lat = req.query.lat;
+    const long = req.query.long;
+    const category = req.query.category;
+  
+    if (req.query.lat && req.query.long && req.query.category) {
+      connection.query(
+        `with a as (
+              select * from Categories natural join Restaurants
+          )
+          select a.business_id,a.name,a.stars,
+          case when stars >4 and review_count > 20 then 'highly recommend'
+          when stars >3 and review_count > 5 then 'recommend'
+          else 'not recommend'
+          end as recommendation
+          
+          from a
+          where abs(a.r_lat - ${lat}) <= 0.01  
+          and abs(a.r_long - (${long})) <= 0.01  
+          and a.category Like '%${category}%' 
+          order by a.stars,a.review_count desc `,
+        function (error, results, fields) {
+          if (error) {
+            console.log(error);
+            res.json({ error: error });
+          } else if (results) {
+            res.json({ results: results });
+          }
+        }
+      );
+    } else {
+      connection.query(
+        `select * from Restaurants
+          where stars>=4 and is_open = 1
+          and business_id in (
             with not_resturants as (
                 select distinct business_id
                 from Categories
                 where category in (${nonrestaurants})
-            )Select r.business_id from Restaurants r left join not_resturants nr on r.business_id = nr.business_id
+            )
+            Select r.business_id 
+            from Restaurants r 
+            left join not_resturants nr on r.business_id = nr.business_id
             where nr.business_id is null)
-        order by RAND()
-        limit 8`,function (error, results, fields) {
-
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } else if (results) {
-            res.json({ results: results })
+          order by RAND()
+          limit 8`,
+        function (error, results, fields) {
+          if (error) {
+            console.log(error);
+            res.json({ error: error });
+          } else if (results) {
+            res.json({ results: results });
+          }
         }
-    });
+      );
     }
-}
+  }
 
-//TODO: add attributes filter and like indicator
 async function search(req, res) {
     if (!req.query.city) {
-        res.status(400).json({ description: 'Invalid input' });
+      res.status(400).json({ description: "Invalid input" });
     } else {
-        const city = req.query.city
-        const category = req.query.category? req.query.category : ''
-        const pagesize = req.query.pagesize ? req.query.pagesize : 10
-        const page = req.query.page? req.query.page : 1
-        const offset = pagesize * (page - 1) 
-        const query = `
-        WITH health_score AS (
-            SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS score,
-                   ROUND(PERCENT_RANK() over (ORDER BY ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4)), 2) AS score_rank,
-                   county, state_abbr
-            FROM Health
-            GROUP BY county, state
-        ),
-        rest_score AS (
-            SELECT business_id, name, address, city, state, zipcode, r_lat AS latitude, r_long AS longitude,
-                stars, ROUND(PERCENT_RANK() over (ORDER BY stars), 2) AS stars_rank,
-                review_count, ROUND(PERCENT_RANK() over (ORDER BY review_count), 2) AS review_rank,
-                is_open, hours, county
-            FROM Restaurants R
-            NATURAL JOIN Categories
-            WHERE city='${city}' AND category like '%${category}%'
+      const city = (req.query.city).toUpperCase();
+      const category = req.query.category ? req.query.category : "";
+      const pagesize = req.query.pagesize ? req.query.pagesize : 10;
+      const page = req.query.page ? req.query.page : 1;
+      const offset = pagesize * (page - 1);
+      const query = `
+        with res as (
+          select min(stars) as min_s,max(stars) as max_s ,min(review_count) as min_r,
+                 max(review_count) as max_r
+          from Restaurants
+        ), heal as (
+          select min(pos_pct) as min_pos, max(pos_pct) as max_pos
+          from Health
+        ), Res_county as (
+          select Z2S.city,Z2S.state,R.business_id,R.name,R.address,R.zipcode,R.r_lat,R.r_long,R.stars,R.review_count,R.is_open,R.hours,R.photo,Z2S.county as county from Restaurants R join Zipcode2State Z2S on R.zipcode = Z2S.zipcode
+          join Categories C on R.business_id = C.business_id
+          where Z2S.city = upper('${city}') and category like '%${category}%'
         )
-        SELECT  distinct business_id, name, address, city, state, zipcode, latitude, longitude,
-                stars, review_count, is_open, hours
-        FROM rest_score R
-        JOIN health_score ON R.county = health_score.county AND R.state = health_score.state_abbr
+        SELECT  photo, business_id, name, address, city, Rc.state, zipcode, Rc.r_lat, r_long,
+        stars, review_count, is_open, hours
+        from Res_county Rc 
+        join Health H on Rc.state = H.state_abbr and Rc.county = H.county
+        join res join heal
         WHERE business_id not in (
             select distinct business_id
             from Categories
             where category in (${nonrestaurants})
         )
-        ORDER BY (stars*0.3+score_rank*0.6+review_rank*0.1) DESC
-        LIMIT ${offset}, ${pagesize};`
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                res.status(500).json({ description: error })
-            } else if (results) {
-                res.status(200).json({ results: results })
-            }
-        })
+        group by Rc.business_id
+        order by (Rc.stars-min_s)/(max_s-min_s) + (Rc.review_count-min_r)/(max_r-min_r)+0.5*(H.pos_pct-min_pos)/(max_pos-min_pos) desc
+        LIMIT ${offset}, ${pagesize};`;
+      connection.query(query, function (error, results, fields) {
+        if (error) {
+          res.status(500).json({ description: error });
+        } else if (results) {
+          res.status(200).json({ results: results });
+        }
+      });
     }
-}
+  }
 
 async function addLike(req, res) {
     if (!req.body.business_id || !req.body.user_id) {
@@ -414,27 +414,39 @@ async function getLikedRest(req, res) {
     }
 }
 
-async function getRestInfo(req,res){
-    const bus_id = req.query.bus_id
-    
-    connection.query(`with county_health as (
-        select county, round(avg(pos_pct),2) as average_pos_rate, max(trans_level) as trans_level,round(avg(vacc_pct),2) as average_vacc_pct
-        from Health group by county
-        )Select * from Restaurants join county_health
-            on Restaurants.county = county_health.county
-            join Attributes A on Restaurants.business_id = A.business_id
-            where Restaurants.business_id = '${bus_id}'`,function (error, results, fields) {
-
+async function getRestInfo(req, res) {
+    const bus_id = req.query.bus_id;
+  
+    connection.query(
+        `with county_health as (
+          select county, round(avg(pos_pct),2) as average_pos_rate, 
+            max(trans_level) as trans_level,
+            round(avg(vacc_pct),2) as average_vacc_pct
+          from Health group by county
+          ),
+        Res_county as (
+            select Z2S.city,Z2S.state,R.business_id,R.name,R.address,
+                R.zipcode,R.r_lat,R.r_long,R.stars,R.review_count,
+                R.is_open,R.hours,R.photo,Z2S.county as county 
+            from Restaurants R 
+            join Zipcode2State Z2S 
+            on R.zipcode = Z2S.zipcode
+        )
+        select * from Res_county 
+        join county_health 
+        join Attributes
+        where Res_county.business_id = '${bus_id}'`,
+      function (error, results, fields) {
         if (error) {
-            console.log(error)
-            res.status(500).json({ error: error })
+          console.log(error);
+          res.status(500).json({ error: error });
         } else if (results) {
-            res.json({ results: results })   
+          res.json({ results: results });
         }
-    });
- 
-     
-}
+      }
+    );
+  }
+  
 
 async function todayrecommendation (req, res){
     
