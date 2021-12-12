@@ -2,6 +2,8 @@ const connection = require('./connectDB')
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport')
 const { hashUserPassword } = require('./utils')
+const NodeCache = require( "node-cache" );
+const myCache = new NodeCache();
 
 const nonrestaurants = `
 'Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
@@ -118,53 +120,61 @@ async function login(req, res, next) {
 
 async function stateinfo(req,res){
     const state = req.query.state
+
     if(req.query.state){
-        connection.query(`with not_resturants as (
-            select distinct business_id from Categories
-                where category in (${nonrestaurants})
-         ), temp as (
-            select county, count(c.category) as counts, avg(stars) as avg_stars
-            from Restaurants r
-                     join Categories c on r.business_id = c.business_id
-                     left join not_resturants nr on r.business_id = nr.business_id
-            where nr.business_id is null and state = '${state}'
-               or state like '${state}'
-            group by county
-        ), health_index as (
-            select county, sum(vacc_count),
-        Rank() OVER
-            (ORDER BY avg(vacc_pct) DESC) as vac_rate_rank,
-        Rank() OVER
-            (ORDER BY avg(pos_pct) ASC) as low_pos_rate_rank
-        from Health
-        where state_abbr = '${state}'
-        and vacc_pct is not null and pos_pct is not null
-        group by county
-        )
-        select health_index.county, temp.avg_stars as average_rating,
-        case when temp.counts >10 then 'plentiful choices'
-        when temp.counts >5 and temp.counts<=10 then 'several choices'
-        when temp.counts is null then 'choices unknown'
-        else 'few choices'
-        end as num_category_county,
-        case when low_pos_rate_rank < 0.3* (select count(distinct(county)) from Health where state_abbr = '${state}') then 'safe county'
-        when low_pos_rate_rank <= 0.7* (select count(distinct(county)) from Health where state_abbr = '${state}') then 'fine county'
-        else 'risky county'
-        end as positive_level,
-        case when vac_rate_rank < 0.3* (select count(distinct(county)) from Health where state_abbr = '${state}') then 'highly vaccinated'
-        when vac_rate_rank < 0.7* (select count(distinct(county)) from Health where state_abbr = '${state}') then 'medium vaccinated'
-        else 'low vaccinated'
-        end as vaccination_level
-        from health_index left join temp on health_index.county = temp.county
-        group by county
-        order by average_rating desc`, function (error, results, fields)  {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });     
+        const value = myCache.get(state)
+        if (value == undefined) {
+            connection.query(`with Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
+                FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
+             not_resturants as (
+                    select distinct business_id from Categories
+                        where category in (${nonrestaurants})
+                 ), temp as (
+                    select county, count(c.category) as counts, avg(stars) as avg_stars
+                    from Categories c
+                             join Table0 on Table0.business_id = c.business_id
+                             left join not_resturants nr on Table0.business_id = nr.business_id
+                    where nr.business_id is null and state = 'PA' or state like '%P%A'
+                    group by county
+                ), health_index as (
+                    select county, sum(vacc_count),
+                Rank() OVER
+                    (ORDER BY avg(vacc_pct) DESC) as vac_rate_rank,
+                Rank() OVER
+                    (ORDER BY avg(pos_pct) ASC) as low_pos_rate_rank
+                from Health
+                where state_abbr = '${state}' or state_abbr like '${state}'
+                and vacc_pct is not null and pos_pct is not null
+                group by county
+                )
+                select health_index.county, temp.avg_stars as average_rating,
+                case when temp.counts >10 then 'plentiful choices'
+                when temp.counts >5 and temp.counts<=10 then 'several choices'
+                when temp.counts is null then 'choices unknown'
+                else 'few choices'
+                end as num_category_county,
+                case when low_pos_rate_rank < 0.3* (select count(distinct(county)) from Health where state_abbr = '${state}' or state_abbr like '${state}') then 'safe county'
+                when low_pos_rate_rank <= 0.7* (select count(distinct(county)) from Health where state_abbr= '${state}' or state_abbr like '${state}') then 'fine county'
+                else 'risky county'
+                end as positive_level,
+                case when vac_rate_rank < 0.3* (select count(distinct(county)) from Health where state_abbr = '${state}' or state_abbr like '${state}') then 'highly vaccinated'
+                when vac_rate_rank < 0.7* (select count(distinct(county)) from Health where state_abbr= '${state}' or state_abbr like '${state}' ) then 'medium vaccinated'
+                else 'low vaccinated'
+                end as vaccination_level
+                from temp right join health_index on health_index.county = temp.county
+                group by county
+                order by average_rating desc;`, function (error, results, fields)  {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    myCache.set(state, results)
+                    res.json({ results: results })
+                }
+            });  
+        } else {
+            res.json({ results: value })
+        }   
     }else{
         connection.query(`SELECT ((1-AVG(pos_pct))*0.6+AVG(vacc_pct)*0.4) AS health_score,state_abbr
         FROM Health
@@ -391,17 +401,19 @@ async function todayrecommendation (req, res){
     const category = req.query.category 
     
     if(req.query.category){
-        connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
-        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
-        GROUP BY category),
-             TABLE2 AS(SELECT name, address, city, R.state, category, trans_level, R.business_id as business_id
-        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
-        SELECT DISTINCT (name) as restaurant, address, city, business_id, TABLE2.state, trans_level
-        FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
-        WHERE TABLE1.category ='${category}'
-        LIMIT 8; `,function (error, results, fields) {
+        connection.query(`WITH Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
+            FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
+         TABLE1 AS(SELECT category, MAX(review_count) as popularity
+                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
+                   GROUP BY category),
+         TABLE2 AS(SELECT name, address, Table0.city as city, Table0.state as state, category, trans_level, Table0.photo as photo,Table0.business_id as business_id
+                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
+    SELECT DISTINCT (name) as restaurant, address, TABLE2.city, TABLE2.state, trans_level, photo, business_id
+    FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+    WHERE TABLE1.category = '${category}'
+    LIMIT 8; `,function (error, results, fields) {
 
            if (error) {
                console.log(error)
@@ -416,18 +428,21 @@ async function todayrecommendation (req, res){
 async function explore (req, res){
     
     const category = req.query.category 
-    
+    const number = req.query.number
     if(req.query.category){
-        connection.query(`WITH TABLE1 AS(SELECT category, MAX(review_count) as popularity
-        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
-        GROUP BY category),
-             TABLE2 AS(SELECT name, address, city, R.state, category, trans_level
-        FROM Health H join Restaurants R on H.county=R.county join Categories C on R.business_id = C.business_id
-        WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
-        SELECT DISTINCT (name) as restaurant, address, city, TABLE2.state, trans_level
-        FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
-        WHERE TABLE1.category ='${category}'; `,function (error, results, fields) {
+        connection.query(`WITH Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
+            FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
+         TABLE1 AS(SELECT category, MAX(review_count) as popularity
+                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
+                   GROUP BY category),
+         TABLE2 AS(SELECT name, address, Table0.city as city, Table0.state as state, category, trans_level, Table0.business_id as business_id
+                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
+    SELECT DISTINCT (name) as restaurant, address, TABLE2.city, TABLE2.state, trans_level, business_id
+    FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+    WHERE TABLE1.category = '${category}'
+    LIMIT ${number};`,function (error, results, fields) {
 
            if (error) {
                console.log(error)
@@ -446,7 +461,7 @@ async function covid (req, res){
     if(req.query.state){
         connection.query(`SELECT report_date, SUM(case_count_change) as number
         FROM Health
-        WHERE state='%${state}' or state_abbr = '${state}'
+        WHERE state like '%${state}%' or state_abbr like '%${state}%'
         GROUP BY report_date
         ORDER BY report_date;`,function (error, results, fields) {
 
