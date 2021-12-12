@@ -8,13 +8,16 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 
 import { postSignup, postLogin } from "fetcher";
+import { refreshTokenSetup } from "components/login/refreshToken";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import illustration from "images/signup-illustration.svg";
-import logo from "images/logo.svg";
+import logo from "images/logo.png";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as SignUpIcon } from "feather-icons/dist/icons/user-plus.svg";
+import GLogin from "components/login/login"
+import FLogin from "components/login/Loginfb"
 
 const Container = tw(ContainerBase)`min-h-screen bg-primary-900 text-white font-medium flex justify-center -m-8`;
 const Content = tw.div`max-w-screen-xl m-0 sm:mx-20 sm:my-16 bg-white text-gray-900 shadow sm:rounded-lg flex justify-center flex-1`;
@@ -25,19 +28,6 @@ const MainContent = tw.div`mt-12 flex flex-col items-center`;
 const Heading = tw.h1`text-2xl xl:text-3xl font-extrabold`;
 const FormContainer = tw.div`w-full flex-1 mt-8`;
 
-const SocialButtonsContainer = tw.div`flex flex-col items-center`;
-const SocialButton = styled.a`
-  ${tw`w-full max-w-xs font-semibold rounded-lg py-3 border text-gray-900 bg-gray-100 hocus:bg-gray-200 hocus:border-gray-400 flex items-center justify-center transition-all duration-300 focus:outline-none focus:shadow-outline text-sm mt-5 first:mt-0`}
-  .iconContainer {
-    ${tw`bg-white p-2 rounded-full`}
-  }
-  .icon {
-    ${tw`w-4`}
-  }
-  .text {
-    ${tw`ml-4`}
-  }
-`;
 
 const DividerTextContainer = tw.div`my-8 border-b text-center relative`;
 const DividerText = tw.div`leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform -translate-y-1/2 absolute inset-x-0 top-1/2 bg-transparent`;
@@ -62,7 +52,7 @@ const IllustrationImage = styled.div`
 function Signup(props, {
   logoLinkUrl = "/",
   illustrationImageSrc = illustration,
-  headingText = "Sign Up For Treact",
+  headingText = "Sign Up For YYDX",
   socialButtons = [
     {
       iconImageSrc: googleIconImageSrc,
@@ -95,7 +85,7 @@ function Signup(props, {
     } else if (password !== password2) {
       alert("Your passwords don't match")
     } else {
-      const signUpResult = await postSignup(username, password, health)
+      const signUpResult = await postSignup(true, "", username, password, health)
       if (signUpResult.status === 409) {
         alert("Your username has already existed")
       } else if (signUpResult.status !== 200) {
@@ -112,6 +102,40 @@ function Signup(props, {
     }
   }
 
+  const onSuccess = async (res) => {
+    const signUpResult = await postSignup(false, res.profileObj.googleId, res.profileObj.givenName, "google-login", true)
+    if (signUpResult.status === 409) {
+      alert("Your google account has already been signed up")
+    } else if (signUpResult.status !== 200) {
+      alert("Internal error. Please notify developers")
+    } else {
+      refreshTokenSetup(res);
+      window.localStorage.setItem('authenticated', true);
+      window.localStorage.setItem('userId', res.profileObj.googleId);
+      setSuccess(true)        
+    }
+  };
+
+  const onSuccess1 = async (res) => {
+    const signUpResult = await postSignup(false, res.id, res.name, "facebook-login", true)
+    if (signUpResult.status === 409) {
+      alert("Your facebook account has already been signed up")
+    } else if (signUpResult.status !== 200) {
+      alert("Internal error. Please notify developers")
+    } else {
+      window.localStorage.setItem('authenticated', true);
+      window.localStorage.setItem('userId', res.id);
+      setSuccess(true)        
+    }
+  };
+
+  const onFailure = (res) => {
+    console.log('Sign up failed: res:', res);
+    alert(
+      `Failed to sign up. 😢 Please try again`
+    );
+  };
+
   return (
     <AnimationRevealPage>
     <Container>
@@ -123,19 +147,11 @@ function Signup(props, {
           <MainContent>
             <Heading>{headingText}</Heading>
             <FormContainer>
-              {/* <SocialButtonsContainer>
-                {socialButtons.map((socialButton, index) => (
-                  <SocialButton key={index} href={socialButton.url}>
-                    <span className="iconContainer">
-                      <img src={socialButton.iconImageSrc} className="icon" alt="" />
-                    </span>
-                    <span className="text">{socialButton.text}</span>
-                  </SocialButton>
-                ))}
-              </SocialButtonsContainer> */}
-              {/* <DividerTextContainer>
-                <DividerText>Or Sign up with your e-mail</DividerText>
-              </DividerTextContainer> */}
+              <GLogin onSuccess={onSuccess} onFailure={onFailure}/>
+              <FLogin onSuccess={onSuccess1} onFailure={onFailure}/>
+              <DividerTextContainer>
+                <DividerText>Or</DividerText>
+              </DividerTextContainer>
               <Form>
                 <Input type="text" placeholder="Username" onChange={(e)=>setUsername(e.target.value)} value={username} required />
                 <Input type="password" placeholder="Password" minLength={6} maxLength={12} onChange={(e)=>setPassword(e.target.value)} value={password} required />

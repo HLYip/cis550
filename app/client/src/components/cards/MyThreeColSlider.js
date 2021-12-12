@@ -74,12 +74,15 @@ export default () => {
   const [sliderRef, setSliderRef] = useState(null);
   const [rest, setRest] = useState(0)
   const [cards, setCards] = useState([])
+  const [noLikes, setNoLikes] = useState(false)
   
   useEffect(() => {
     getCollections(window.localStorage.getItem('userId')).then(recResult => {
       if (recResult.status === 200) {
         console.log(recResult)
         setCards(recResult.result.results.slice(0,10))
+      } else if (recResult.status === 404) {
+        setNoLikes(true)
       } else {
         alert('Error. Please contact developers')
       }
@@ -126,6 +129,9 @@ export default () => {
             <NextButton onClick={sliderRef?.slickNext}><ChevronRightIcon/></NextButton>
           </Controls>
         </HeadingWithControl>
+        { noLikes && <HeadingDescription>
+          You have not liked any restaurant yet.
+          </HeadingDescription>}
         <CardSlider ref={setSliderRef} {...sliderSettings}>
           {cards.map((card, index) => (
             <Card key={index}>

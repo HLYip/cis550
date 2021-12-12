@@ -11,7 +11,7 @@ import { Container as ContainerBase, ContentWithVerticalPadding, Content2Xl } fr
 import { SectionHeading } from "components/misc/Headings.js";
 import { SectionDescription } from "components/misc/Typography.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
-import logoImageSrc from "images/logo-light.svg";
+import logoImageSrc from "images/logo-light.png";
 import serverIllustrationImageSrc from "images/server-illustration-2.svg";
 
 const PrimaryBackgroundContainer = tw.div`-mx-8 px-8 bg-primary-900 text-gray-100`;
@@ -40,7 +40,7 @@ export default ({
   const logoLink = (
     <LogoLink href="/">
       <img src={logoImageSrc} alt="Logo" />
-      Treact
+      YYDX
     </LogoLink>
   );
   const navLinks = [
