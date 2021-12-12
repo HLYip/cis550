@@ -1,13 +1,10 @@
-import { React, useState } from 'react';
-import { Redirect } from 'react-router-dom'
+import { React } from 'react';
 import tw from "twin.macro";
 import { GoogleLogin } from 'react-google-login';
 // refresh token
-import { refreshTokenSetup } from './refreshToken';
 import googleIconImageSrc from "images/google-icon.png";
 import styled from "styled-components";
 
-import { postSignup } from 'fetcher'
 
 const SocialButtonsContainer = tw.div`flex flex-col items-center`;
 const SocialButton = styled.a`
