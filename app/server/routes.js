@@ -431,11 +431,11 @@ async function getRestInfo(req, res) {
             from Restaurants R 
             join Zipcode2State Z2S 
             on R.zipcode = Z2S.zipcode
+            where Res_county.business_id = '${bus_id}'
         )
         select * from Res_county 
         join county_health 
-        join Attributes
-        where Res_county.business_id = '${bus_id}'`,
+        join Attributes`,
       function (error, results, fields) {
         if (error) {
           console.log(error);
