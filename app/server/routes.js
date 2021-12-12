@@ -60,9 +60,10 @@ const nonrestaurants = `
 
 // authorization - signup
 async function signup(req, res) {
-    if (!req.body.username || !req.body.password || !req.body.prefer_health) {
+    console.log(req.body)
+    if (req.body.normal && (!req.body.username || !req.body.password || !req.body.prefer_health)) {
         res.status(400).json({ description: 'Invalid input' });
-    } else {
+    } else if (req.body.normal) {
         try {
             const { username, password, prefer_health } = req.body;
             connection.query(`SELECT * FROM Users WHERE username = '${username}'`,  async function(err,rows) {
@@ -85,6 +86,45 @@ async function signup(req, res) {
         } catch (e) {
             res.status(500).json({ description: 'Internal Server Error for unforeseen reason' });
         }
+    } else {
+        const { user_id, username, password, prefer_health } = req.body;
+        console.log('here')
+        connection.query(`SELECT * FROM Users WHERE user_id = '${user_id}'`,  async function(err,rows) {
+            if (err) return res.status(500).json({ description: err });
+            if (rows.length) {
+                return res.status(409).json({ description: 'Your google account has already been sign up' }); 
+            } 
+            hash_password = await hashUserPassword(password)
+            connection.query(`
+                INSERT INTO Users (user_id, username, password, prefer_health)
+                VALUES ('${user_id}', '${username}', '${hash_password}', ${prefer_health})
+            `, function(err, _) {
+                if (err) return res.status(500).json({ description: err });
+                return res.status(200).json({ description: 'Success' })
+            })
+        });
+    }
+}
+
+async function login2(req, res) {
+    try {
+        const { user_id } = req.body;
+        connection.query(`SELECT * FROM Users WHERE user_id = '${user_id}'`,  async function(err,rows) {
+            if (err) return res.status(500).json({ description: err });
+            if (rows.length) {
+                return res.status(200).json({
+                    description: 'Success',
+                    authenticated: true,
+                    username: rows[0].username,
+                    userId: rows[0].user_id,
+                    prefer_health: rows[0].prefer_health
+                });
+            } else {
+                return res.status(409).json({ description: 'Your have not sign up yet' }); 
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ description: 'Internal Server Error for unforeseen reason' });
     }
 }
 
@@ -521,5 +561,6 @@ module.exports = {
     getLikedRest,
     logout,
     getRestInfo,
-    isLike
+    isLike,
+    login2
 }

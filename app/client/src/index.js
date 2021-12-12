@@ -21,6 +21,7 @@ import ExploreResults from 'pages/ExploreResults';
 import ScrollToTop from 'helpers/ScrollToTop';
 import Collections from 'pages/Collections'
 import About from 'pages/AboutUs'
+import Test from 'pages/Test';
 
 const initialState = {
 	authenticated: false,
@@ -84,6 +85,11 @@ ReactDOM.render(
 							path="/about"
 							render={() => (
 								<About />
+							)}/>
+		<Route exact
+							path="/test"
+							render={() => (
+								<Test />
 							)}/>
       </Switch>
 	  </ScrollToTop>

@@ -8,7 +8,7 @@ const getSearchResults = async (city, category, page, pagesize) => {
     return {status: res.status, result: json}
 }
 
-const postSignup = async (username, password, prefer_health) => {
+const postSignup = async (normal, user_id, username, password, prefer_health) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/signup`, {
         method: 'POST',
         cache: 'no-cache',
@@ -17,6 +17,8 @@ const postSignup = async (username, password, prefer_health) => {
             Accept: 'application/json',
         },
         body: JSON.stringify({
+            normal,
+            user_id,
             username,
             password,
             prefer_health,
@@ -44,6 +46,24 @@ const postLogin = async (username, password) => {
     var json = await res.json()
     return {status: res.status, result: json}
 }
+
+const postLogin2 = async (user_id) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/loginWithAccount`, {
+        method: 'POST',
+        cache: 'no-cache',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        credentials: 'include',
+        body: JSON.stringify({
+            user_id
+        })
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
+
 
 const postLogout= async () => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/logout`, {
@@ -156,5 +176,6 @@ export {
     deleteRemoveLike,
     getIsLike,
     getCollections,
-    getCovidData
+    getCovidData,
+    postLogin2
 }

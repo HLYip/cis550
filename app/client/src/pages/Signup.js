@@ -8,6 +8,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 
 import { postSignup, postLogin } from "fetcher";
+import { refreshTokenSetup } from "components/login/refreshToken";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import illustration from "images/signup-illustration.svg";
@@ -15,6 +16,7 @@ import logo from "images/logo.svg";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as SignUpIcon } from "feather-icons/dist/icons/user-plus.svg";
+import GLogin from "components/login/login"
 
 const Container = tw(ContainerBase)`min-h-screen bg-primary-900 text-white font-medium flex justify-center -m-8`;
 const Content = tw.div`max-w-screen-xl m-0 sm:mx-20 sm:my-16 bg-white text-gray-900 shadow sm:rounded-lg flex justify-center flex-1`;
@@ -95,7 +97,7 @@ function Signup(props, {
     } else if (password !== password2) {
       alert("Your passwords don't match")
     } else {
-      const signUpResult = await postSignup(username, password, health)
+      const signUpResult = await postSignup(true, "", username, password, health)
       if (signUpResult.status === 409) {
         alert("Your username has already existed")
       } else if (signUpResult.status !== 200) {
@@ -112,6 +114,28 @@ function Signup(props, {
     }
   }
 
+  const onSuccess = async (res) => {
+    const signUpResult = await postSignup(false, res.profileObj.googleId, res.profileObj.givenName, "google-login", true)
+    if (signUpResult.status === 409) {
+      alert("Your google account has already been signed up")
+    } else if (signUpResult.status !== 200) {
+      alert("Internal error. Please notify developers")
+    } else {
+      refreshTokenSetup(res);
+      window.localStorage.setItem('authenticated', true);
+      window.localStorage.setItem('userId', res.profileObj.googleId);
+      setSuccess(true)        
+    }
+    
+  };
+
+  const onFailure = (res) => {
+    console.log('Sign up failed: res:', res);
+    alert(
+      `Failed to sign up. 😢 Please try again`
+    );
+  };
+
   return (
     <AnimationRevealPage>
     <Container>
@@ -123,19 +147,10 @@ function Signup(props, {
           <MainContent>
             <Heading>{headingText}</Heading>
             <FormContainer>
-              {/* <SocialButtonsContainer>
-                {socialButtons.map((socialButton, index) => (
-                  <SocialButton key={index} href={socialButton.url}>
-                    <span className="iconContainer">
-                      <img src={socialButton.iconImageSrc} className="icon" alt="" />
-                    </span>
-                    <span className="text">{socialButton.text}</span>
-                  </SocialButton>
-                ))}
-              </SocialButtonsContainer> */}
-              {/* <DividerTextContainer>
-                <DividerText>Or Sign up with your e-mail</DividerText>
-              </DividerTextContainer> */}
+              <GLogin onSuccess={onSuccess} onFailure={onFailure}/>
+              <DividerTextContainer>
+                <DividerText>Or</DividerText>
+              </DividerTextContainer>
               <Form>
                 <Input type="text" placeholder="Username" onChange={(e)=>setUsername(e.target.value)} value={username} required />
                 <Input type="password" placeholder="Password" minLength={6} maxLength={12} onChange={(e)=>setPassword(e.target.value)} value={password} required />

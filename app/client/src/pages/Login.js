@@ -4,7 +4,8 @@ import styled from "styled-components";
 import { Redirect } from 'react-router-dom'
 import { withGlobalState } from 'react-globally'
 
-import { postLogin } from "fetcher";
+import { postLogin, postLogin2 } from "fetcher";
+import { refreshTokenSetup } from "components/login/refreshToken";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import illustration from "images/login-illustration.svg";
@@ -12,6 +13,7 @@ import logo from "images/logo.svg";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as LoginIcon } from "feather-icons/dist/icons/log-in.svg";
+import GLogin from "components/login/login"
 
 const Container = tw(ContainerBase)`min-h-screen bg-primary-900 text-white font-medium flex justify-center -m-8`;
 const Content = tw.div`max-w-screen-xl m-0 sm:mx-20 sm:my-16 bg-white text-gray-900 shadow sm:rounded-lg flex justify-center flex-1`;
@@ -105,6 +107,28 @@ function Login(props, {
     }
   }
 
+  const onSuccess = async (res) => {
+    const loginResult = await postLogin2(res.profileObj.googleId)
+    if (loginResult.status === 409) {
+      alert("Your google account has not been signed up yet")
+    } else if (loginResult.status !== 200) {
+      alert("Internal error. Please notify developers")
+    } else {
+      refreshTokenSetup(res);
+      window.localStorage.setItem('authenticated', true);
+      window.localStorage.setItem('userId', res.profileObj.googleId);
+      setSuccess(true)        
+    }
+    
+  };
+
+  const onFailure = (res) => {
+    console.log('Login failed: res:', res);
+    alert(
+      `Failed to login. 😢 Please try again`
+    );
+  };
+
   return (
   <AnimationRevealPage>
     <Container>
@@ -116,19 +140,10 @@ function Login(props, {
           <MainContent>
             <Heading>{headingText}</Heading>
             <FormContainer>
-              {/* <SocialButtonsContainer>
-                {socialButtons.map((socialButton, index) => (
-                  <SocialButton key={index} href={socialButton.url}>
-                    <span className="iconContainer">
-                      <img src={socialButton.iconImageSrc} className="icon" alt=""/>
-                    </span>
-                    <span className="text">{socialButton.text}</span>
-                  </SocialButton>
-                ))}
-              </SocialButtonsContainer>
+              <GLogin onSuccess={onSuccess} onFailure={onFailure} text='Sign In With Google'/>
               <DividerTextContainer>
-                <DividerText>Or Sign in with your e-mail</DividerText>
-              </DividerTextContainer> */}
+                <DividerText>Or</DividerText>
+              </DividerTextContainer>
               <Form>
                 <Input type="text" placeholder="Username" value={username} onChange={(e)=>setUsername(e.target.value)} />
                 <Input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)}/>
