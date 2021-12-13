@@ -445,15 +445,16 @@ async function todayrecommendation (req, res){
         connection.query(`WITH Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
             FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
          TABLE1 AS(SELECT category, MAX(review_count) as popularity
-                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
-                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
+                   FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>4
                    GROUP BY category),
-         TABLE2 AS(SELECT name, address, Table0.city as city, Table0.state as state, category, trans_level, Table0.photo as photo,Table0.business_id as business_id
-                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
-                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
-    SELECT DISTINCT (name) as restaurant, address, TABLE2.city, TABLE2.state, trans_level, photo, business_id
-    FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+         TABLE2 AS(SELECT name, address, H.county ,Table0.city as city, Table0.state as state, category, H.trans_level as translevel,Table0.business_id as business_id
+                   FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>4)
+    SELECT DISTINCT name as restaurant, address, county, TABLE2.city, TABLE2.state, translevel, business_id
+    FROM TABLE2 join TABLE1 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
     WHERE TABLE1.category = '${category}'
+    ORDER BY translevel
     LIMIT ${limit}; `,function (error, results, fields) {
 
            if (error) {
@@ -469,20 +470,21 @@ async function todayrecommendation (req, res){
 async function explore (req, res){
     
     const category = req.query.category 
-    const number = req.query.number
+    const number = req.query.number?req.query.number:100
     if(req.query.category){
         connection.query(`WITH Table0 AS (SELECT business_id, name, address, R.zipcode as zipcode, stars, review_count, photo, county, city, state
             FROM Restaurants R join Zipcode2State Z on R.zipcode= Z.zipcode),
          TABLE1 AS(SELECT category, MAX(review_count) as popularity
-                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
-                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5
+                   FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>3
                    GROUP BY category),
-         TABLE2 AS(SELECT name, address, Table0.city as city, Table0.state as state, category, trans_level, Table0.business_id as business_id
-                   FROM Health H join Table0 on H.county=Table0.county join Categories C on Table0.business_id = C.business_id
-                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars=5)
-    SELECT DISTINCT (name) as restaurant, address, TABLE2.city, TABLE2.state, trans_level, business_id
-    FROM TABLE1 join TABLE2 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
+         TABLE2 AS(SELECT name, address, H.county ,Table0.city as city, Table0.state as state, category, H.trans_level as translevel,Table0.business_id as business_id
+                   FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
+                   WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>3)
+    SELECT DISTINCT name as restaurant, address, county, TABLE2.city, TABLE2.state, translevel, business_id
+    FROM TABLE2 join TABLE1 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
     WHERE TABLE1.category = '${category}'
+    ORDER BY translevel
     LIMIT ${number};`,function (error, results, fields) {
 
            if (error) {
