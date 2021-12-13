@@ -140,8 +140,8 @@ function Login(props, {
           <MainContent>
             <Heading>{headingText}</Heading>
             <FormContainer>
-              <GLogin onSuccess={onSuccess} onFailure={onFailure} text='Sign In With Google'/>
-              <FLogin onSuccess={onSuccess1} onFailure={onFailure} text='Sign In With Facebook'/>
+              <GLogin onSuccess={onSuccess} text='Sign In With Google'/>
+              <FLogin onSuccess={onSuccess1} text='Sign In With Facebook'/>
               <DividerTextContainer>
                 <DividerText>Or</DividerText>
               </DividerTextContainer>

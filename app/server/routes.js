@@ -1,9 +1,10 @@
-const connection = require('./connectDB')
+const { connection } = require('./connectDB')
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport')
 const { hashUserPassword } = require('./utils')
 const NodeCache = require( "node-cache" );
 const myCache = new NodeCache();
+const { Health } = require('./connectDB')
 
 const nonrestaurants = `
 'Home Services', 'Radiologists,Doctors', 'Jewelry,Health & Medical,Chiropractors', 'Massage Therapy',
@@ -419,23 +420,22 @@ async function getRestInfo(req, res) {
   
     connection.query(
         `with county_health as (
-          select county, round(avg(pos_pct),2) as average_pos_rate, 
-            max(trans_level) as trans_level,
-            round(avg(vacc_pct),2) as average_vacc_pct
-          from Health group by county
-          ),
-        Res_county as (
-            select Z2S.city,Z2S.state,R.business_id,R.name,R.address,
-                R.zipcode,R.r_lat,R.r_long,R.stars,R.review_count,
-                R.is_open,R.hours,R.photo,Z2S.county as county 
-            from Restaurants R 
-            join Zipcode2State Z2S 
-            on R.zipcode = Z2S.zipcode
-            where Res_county.business_id = '${bus_id}'
-        )
-        select * from Res_county 
-        join county_health 
-        join Attributes`,
+            select county, round(avg(pos_pct),2) as average_pos_rate, 
+            max(trans_level) as trans_level,round(avg(vacc_pct),2) as average_vacc_pct
+            from Health 
+            group by county
+            ),
+         Res_county as (
+             select Z2S.city,Z2S.state,R.business_id,
+             R.name,R.address,R.zipcode,R.r_lat,R.r_long,
+             R.stars,R.review_count,R.is_open,R.hours,R.photo,
+             Z2S.county as county 
+             from Restaurants R 
+             join Zipcode2State Z2S on R.zipcode = Z2S.zipcode
+             where R.business_id = '${bus_id}')
+    select * from Res_county 
+    join county_health on Res_county.county = county_health.county 
+    join Attributes on Attributes.business_id= Res_county.business_id;`,
       function (error, results, fields) {
         if (error) {
           console.log(error);
@@ -567,6 +567,37 @@ async function isLike(req, res) {
     }
 }
 
+async function countyHealth(req, res){
+    if (!req.query.county) {
+        res.status(400).json({ description: 'Invalid input' });
+    } else {
+        try {
+            Health.aggregate([
+                { $match: { county: req.query.county } },
+                { $group: {  
+                    _id: "$report_date",
+                    avg_pos_pct: { $avg: "$pos_pct" },
+                    avg_vacc_pct: { $avg: "$vacc_pct" },
+                }},
+                { $project: {
+                    pos_pct: { $round: ["$avg_pos_pct", 2] },
+                    vacc_pct: { $round: ["$avg_vacc_pct", 2] },
+                }},
+                { $sort : { _id : 1 } }  
+            ]).then(async (health) => {
+              if (!health) {
+                return res.status(404).json({ description: 'The county is not found' });
+              } else {
+                return res.status(200).json({ results: health }) 
+              }
+            });
+          } catch (e) {
+              console.log(e)
+            res.status(500).json({ description: 'Internal Server Error for unforeseen reason' });
+          }
+    }
+}
+
 async function logout(req, res) {
     req.logout();
     req.session.destroy();
@@ -590,5 +621,6 @@ module.exports = {
     logout,
     getRestInfo,
     isLike,
-    login2
+    login2,
+    countyHealth
 }

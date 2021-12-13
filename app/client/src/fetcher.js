@@ -161,7 +161,15 @@ const getCovidData = async (state) => {
     })
     var json = await res.json()
     return {status: res.status, result: json}
-} 
+}
+
+const getCountyCovid = async (county) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/countyhealth?county=${county}`, {
+        method: 'GET',
+    })
+    var json = await res.json()
+    return {status: res.status, result: json}
+}
 
 export {
     getSearchResults,
@@ -176,5 +184,6 @@ export {
     getIsLike,
     getCollections,
     getCovidData,
-    postLogin2
+    postLogin2,
+    getCountyCovid
 }
