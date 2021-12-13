@@ -1,7 +1,7 @@
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
-const connection = require('./connectDB')
+const { connection } = require('./connectDB')
 const { comparePassword } = require('./utils')
 
 module.exports = function(passport) {

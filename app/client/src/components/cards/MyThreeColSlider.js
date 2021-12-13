@@ -5,7 +5,8 @@ import tw from "twin.macro";
 import styled from "styled-components";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons";
-import { ReactComponent as PriceIcon } from "feather-icons/dist/icons/dollar-sign.svg";
+// import { ReactComponent as PriceIcon } from "feather-icons/dist/icons/dollar-sign.svg";
+import HealthIcon from "components/misc/HealthIcon";
 import { ReactComponent as LocationIcon } from "feather-icons/dist/icons/map-pin.svg";
 import { ReactComponent as StarIcon } from "feather-icons/dist/icons/star.svg";
 import { ReactComponent as ChevronLeftIcon } from "feather-icons/dist/icons/chevron-left.svg";
@@ -58,10 +59,10 @@ const Rating = tw.span`ml-2 font-bold`;
 
 const Description = tw.p`text-sm leading-loose mt-2 sm:mt-4`;
 
-const SecondaryInfoContainer = tw.div`flex flex-col sm:flex-row mt-2 sm:mt-4`;
+const SecondaryInfoContainer = tw.div`flex flex-col sm:flex-col mt-2 sm:mt-4`;
 const IconWithText = tw.div`flex items-center mr-6 my-2 sm:my-0`;
 const IconContainer = styled.div`
-  ${tw`inline-block rounded-full p-2 bg-gray-700 text-gray-100`}
+  ${tw`inline-block rounded-full p-2 bg-gray-700 text-gray-100 mb-2`}
   svg {
     ${tw`w-3 h-3`}
   }
@@ -153,12 +154,15 @@ export default () => {
                   </IconWithText>
                   <IconWithText>
                     <IconContainer>
-                      <PriceIcon />
+                      <HealthIcon color='white' />
                     </IconContainer>
-                    <Text>21.1</Text>
+                    <Text>Transmission Level: {card.trans_level}</Text>
                   </IconWithText>
                 </SecondaryInfoContainer>
-                <Description>Something else</Description>
+                <Description>Positivity Rate: {card.average_pos_rate}%
+                  <br/>
+                  Vaccination Rate: {card.average_vacc_pct}%
+                </Description>
               </TextInfo>
               {rest !== 0 &&
                 <Redirect to={{
