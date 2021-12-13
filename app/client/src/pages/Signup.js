@@ -147,8 +147,8 @@ function Signup(props, {
           <MainContent>
             <Heading>{headingText}</Heading>
             <FormContainer>
-              <GLogin onSuccess={onSuccess} onFailure={onFailure}/>
-              <FLogin onSuccess={onSuccess1} onFailure={onFailure}/>
+              <GLogin onSuccess={onSuccess} />
+              <FLogin onSuccess={onSuccess1} />
               <DividerTextContainer>
                 <DividerText>Or</DividerText>
               </DividerTextContainer>

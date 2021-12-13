@@ -82,6 +82,8 @@ app.get('/restaurant',routes.getRestInfo)
 
 app.get('/like',routes.isLike)
 
+app.get('/countyhealth',routes.countyHealth)
+
 app.post('/logout', routes.logout)
 
 app.listen(config.server_port, () => {
