@@ -42,10 +42,10 @@ const StepHeading = tw.h6`leading-none text-xl font-semibold`;
 const StepDescription = tw.p`mt-3 max-w-xs leading-loose text-sm text-gray-600 font-medium`;
 
 export default ({
-  subheading = "Our Expertise",
+  subheading = "About Us",
   heading = (
     <>
-      Designed & Developed by <span tw="text-primary-500">Professionals.</span>
+      What is <span tw="text-primary-500">YYDX</span>
     </>
   ),
   imageSrc = TeamIllustrationSrc,
@@ -61,20 +61,20 @@ export default ({
 
   const defaultSteps = [
     {
-      heading: "Register",
-      description: "Create an account with us using Google or Facebook."
+      heading: "Search ",
+      description: "The main function of our app is to let user choose their own category and location. Based on those information, we will recommend most suitable restaurants based on our algorithm."
     },
     {
-      heading: "Download",
-      description: "Browse and Download the template that you like from the marketplace."
+      heading: "Explore ",
+      description: "If you have trouble choosing, that’s okay. Our app chooses for you. We will recommend five popular categories for you. "
     },
     {
-      heading: "Run",
-      description: "Follow the instructions to setup and customize the template to your needs."
+      heading: "Collection",
+      description: "Don’t waste time searching the restaurant you liked. We provide your personal collection of your favorite restaurants. All it take is just to click the heart image to like your favorite restaurants."
     }
   ];
 
-  const description = "And we have got answers to all of them. Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+  const description = "A restaurant-searching platform based on coronavirus statistics"
 
   if (!steps) steps = defaultSteps;
 
