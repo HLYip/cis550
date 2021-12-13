@@ -460,10 +460,10 @@ async function todayrecommendation (req, res){
                    FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
                    WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>4
                    GROUP BY category),
-         TABLE2 AS(SELECT name, address, H.county ,Table0.city as city, Table0.state as state, category, H.trans_level,Table0.business_id as business_id
+         TABLE2 AS(SELECT name, address, H.county ,Table0.city as city, Table0.state as state, category, H.trans_level, Table0.photo as photo, Table0.business_id as business_id
                    FROM Health H join Table0 on (H.county=Table0.county and H.state_abbr=Table0.state) join Categories C on Table0.business_id = C.business_id
                    WHERE H.trans_level!='high' and H.trans_level!='null' and H.report_date='2021-11-10' and stars>4)
-    SELECT DISTINCT name as restaurant, address, county, TABLE2.city, TABLE2.state, trans_level, business_id
+    SELECT DISTINCT name as restaurant, address, county, TABLE2.city, TABLE2.state, trans_level, photo, business_id
     FROM TABLE2 join TABLE1 on TABLE1.category=TABLE2.category and TABLE1.popularity = TABLE1.popularity
     WHERE TABLE1.category = '${category}'
     ORDER BY trans_level
