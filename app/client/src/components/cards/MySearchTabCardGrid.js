@@ -111,7 +111,7 @@ export default ({
     if (searchResults.status === 200) {
       setResults(searchResults.result.results)
       setLastInput(input)
-      if (results2.length===0){
+      if (searchResults.result.results.length===0){
         setNoR(true)
       } else{
         setNoR(false)

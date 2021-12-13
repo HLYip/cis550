@@ -77,11 +77,16 @@ export default () => {
   const [rest, setRest] = useState(0)
   const [cards, setCards] = useState([])
   const [noLikes, setNoLikes] = useState(false)
+  const [less, setLess] = useState(true)
   
   useEffect(() => {
     getCollections(window.localStorage.getItem('userId')).then(recResult => {
       if (recResult.status === 200) {
-        console.log(recResult)
+        if (recResult.result.results.length > 3){
+          setLess(false)
+        } else {
+          setLess(true)
+        }
         setCards(recResult.result.results.slice(0,10))
       } else if (recResult.status === 404) {
         setNoLikes(true)
@@ -134,6 +139,49 @@ export default () => {
         { noLikes && <HeadingDescription>
           You have not liked any restaurant yet.
           </HeadingDescription>}
+        { less && 
+        <div tw="flex justify-between">{
+        cards.map((card, index) => (
+          <Card tw="mt-16" key={index}>
+            <CardImage imageSrc={images.food_images[card.photo%images.food_images.length]} />
+            <TextInfo>
+              <TitleReviewContainer>
+                <Title>{card.name}</Title>
+                <RatingsInfo>
+                  <StarIcon />
+                  <Rating>{card.stars}</Rating>
+                </RatingsInfo>
+              </TitleReviewContainer>
+              <SecondaryInfoContainer>
+                <IconWithText>
+                  <IconContainer>
+                    <LocationIcon />
+                  </IconContainer>
+                  <Text>{card.address}, {card.city}, {card.state}</Text>
+                </IconWithText>
+                <IconWithText>
+                  <IconContainer>
+                    <HealthIcon color='white' />
+                  </IconContainer>
+                  <Text>Transmission Level: {card.trans_level}</Text>
+                </IconWithText>
+              </SecondaryInfoContainer>
+              <Description>Positivity Rate: {card.average_pos_rate}%
+                <br/>
+                Vaccination Rate: {card.average_vacc_pct}%
+              </Description>
+            </TextInfo>
+            {rest !== 0 &&
+              <Redirect to={{
+                pathname: '/restaurant',
+                state: rest
+              }}/>
+            }
+            <PrimaryButton onClick={()=> checkDetails(card.business_id)}>More Details</PrimaryButton>
+          </Card>
+          ))
+          } </div>}
+        { !less && 
         <CardSlider ref={setSliderRef} {...sliderSettings}>
           {cards.map((card, index) => (
             <Card key={index}>
@@ -174,7 +222,7 @@ export default () => {
               <PrimaryButton onClick={()=> checkDetails(card.business_id)}>More Details</PrimaryButton>
             </Card>
           ))}
-        </CardSlider>    
+        </CardSlider>  }  
       </Content>
     </Container>
   );
