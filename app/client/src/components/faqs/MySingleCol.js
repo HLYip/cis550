@@ -40,28 +40,33 @@ const DecoratorBlob2 = styled(SvgDecoratorBlob2)`
 
 export default ({
   subheading = "FAQS",
-  heading = "You have Questions ?",
-  description = "And we have got answers to all of them. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  heading = "How do we develop our application ?",
+  description = "",
   faqs = [
     {
-      question: "How do we compute the score for each restaurant ?",
+      question: "How do we recommend restaurants ?",
       answer:
-        "Yes, it is, if you have a membership with us. Otherwise it is charged as per the menu. Some limits do apply as to how much items can be included in your lunch. This limit is enough for any one person and merely exists to discourage abusal of the system."
+        "We calculate the score of restaurants based on number of reviews by user and rating stars. In addition, we incorporate covid index in our score. We use the min-max regularization to ensure the outstanding restaurants will be explored frequently by users."
     },
     {
-      question: "Do you have 2 Bedroom suites ?",
+      question: "How do we find our data ?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        "Thanks to yelp, we utilize their free api to retrieve data and make some improvement to reflect the covid status of each county. "
     },
     {
-      question: "Are Wi-Fi costs included in the price ?",
+      question: "How do we optimize our query ?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        "We try to use cache for some tuple that shows repeatedly in our query execution and we tried to push the selection as down as possible to reduce the number of tuples return by each query."
     },
     {
-      question: "Where can I reach you for support ?",
+      question: "How do we split our work ?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        "Our team has solid background in full-stack development. The front-end website development is acknowledged to Yongxuan Xu and Haolin Ye. The back-end sql database development is acknowledged to Xiaozhe Yang and Mudan Chen."
+    }, 
+    {
+      question: "What do we come up with our app name ?",
+      answer:
+        "It is composed of each team member's name: Y (Yang) Y (Ye) D (Mudan) X (Xu)."
     }
   ]
 }) => {

@@ -10,6 +10,7 @@ import { ReactComponent as StarIcon } from "images/star-icon.svg";
 import HealthIcon from "components/misc/HealthIcon";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
+import images from "helpers/food_images";
 
 import { getTodayRecommendation, getRestInfo } from "fetcher";
 
@@ -83,6 +84,7 @@ export default ({
   const [activeTab, setActiveTab] = useState(tabsKeys[0]);
   const [tabs, setTabs] = useState([]);
   const [rest, setRest] = useState(0)
+  const imageTabs = {"Salad": images.salad, "Sandwiches": images.sandwiches, "Coffee & Tea": images.coffee, "Burgers": images.burgers, "Mexican": images.mexican}
 
   useEffect(() => {
     getTodayRecommendation(activeTab==="Coffee & Tea"?"Coffee %26 Tea":activeTab).then(recResult => {
@@ -94,11 +96,12 @@ export default ({
     })
   }, [activeTab])
 
-  const checkDetails = async (id) => {
-    console.log(id)
+  const checkDetails = async (id, image) => {
     const restResults = await getRestInfo(id)
     if (restResults.status === 200) {
-      setRest(restResults.result.results[0])
+      let res = restResults.result.results[0]
+      res["image"] = image
+      setRest(res)
     } else {
       alert("Error, please contact developers")
     }
@@ -144,7 +147,7 @@ export default ({
             {tabs.map((card, index) => (
               <CardContainer key={index}>
                 <Card className="group" href={card.url} initial="rest" whileHover="hover" animate="rest">
-                  <CardImageContainer imageSrc={getRandomImages}>
+                  <CardImageContainer imageSrc={imageTabs[activeTab][index]}>
                     {/* <CardRatingContainer>
                       <CardRating>
                         <StarIcon />
@@ -165,7 +168,7 @@ export default ({
                       }}
                       transition={{ duration: 0.3 }}
                     >
-                      <CardButton onClick={()=>checkDetails(card.business_id)}>More Details</CardButton>
+                      <CardButton onClick={()=>checkDetails(card.business_id, imageTabs[activeTab][index])}>More Details</CardButton>
                     </CardHoverOverlay>
                   </CardImageContainer>
                   <CardText>

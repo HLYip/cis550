@@ -14,15 +14,13 @@ const Container = styled.div`
 
 export default function SearchResults() {
   const { state }  = useLocation();
-  console.log(state)
   return (
     <AnimationRevealPage>
       <Container>
         <DarkHeader />
       </Container>
-      <TabGrid results={state.results}/>
+        <TabGrid results={state.results} finput={state.input} noResult={state.noResult}/>
       <Footer />
     </AnimationRevealPage>
   );
-  
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect } from 'react-router-dom'
 import { motion } from "framer-motion";
 import tw from "twin.macro";
@@ -9,7 +9,11 @@ import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import { ReactComponent as StarIcon } from "images/star-icon.svg";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
+import { ReactComponent as ChevronLeftIcon } from "feather-icons/dist/icons/chevron-left.svg";
+import { ReactComponent as ChevronRightIcon } from "feather-icons/dist/icons/chevron-right.svg";
+import {SectionDescription} from "components/misc/Typography";
 import { getSearchResults, getRestInfo } from "fetcher.js";
+import images from "helpers/food_images";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
 const TabContent = tw(motion.div)`flex flex-wrap sm:-mr-10 md:-mr-6 lg:-mr-12`;
@@ -59,6 +63,17 @@ const Actions = styled.div`
 
 const ContentWithPaddingXl= tw.div`max-w-screen-xl mx-auto`;
 
+const Controls = tw.div`flex items-center`;
+const ControlButton = styled(PrimaryButtonBase)`
+  ${tw`mt-4 sm:mt-0 first:ml-0 ml-6 rounded-full p-2`}
+  svg {
+    ${tw`w-6 h-6`}
+  }
+`;
+const PrevButton = tw(ControlButton)``;
+const NextButton = tw(ControlButton)``;
+const HeadingWithControl = tw.div`flex items-center sm:items-stretch sm:flex-row justify-center mb-10`;
+
 export default ({
   results = Array(16).fill(
     {
@@ -71,8 +86,9 @@ export default ({
       state: "PA"
     }
   ),
-  page=1,
-  pagesize=16
+  finput = 'pittsburgh',
+  pagesize=16,
+  noResult=false
 }) => {
   /*
    * To customize the tabs, pass in data using the `tabs` prop. It should be an object which contains the name of the tab
@@ -80,8 +96,11 @@ export default ({
    * To see what attributes are configurable of each object inside this array see the example above for "Starters".
    */
   const [input, setInput] = useState('')
-  const [results2, setResults] = useState([])
+  const [results2, setResults] = useState(results)
   const [rest, setRest] = useState(0)
+  const [page, setPage] = useState(1)
+  const [lastInput, setLastInput] = useState(finput)
+  const [noR, setNoR] = useState(noResult)
   // capture text input
   const updateCity = (e) => {
       setInput(e.target.value)
@@ -91,11 +110,28 @@ export default ({
     const searchResults = await getSearchResults(input, "", page, pagesize)
     if (searchResults.status === 200) {
       setResults(searchResults.result.results)
+      setLastInput(input)
+      if (results2.length===0){
+        setNoR(true)
+      } else{
+        setNoR(false)
+      }
       setInput('')
+      setPage(1)
     } else {
       alert("error")
     }
   }
+
+  useEffect(() => {
+    getSearchResults(lastInput, "", page, pagesize).then(searchResults => {
+    if (searchResults.status === 200) {
+      setResults(searchResults.result.results)
+    } else {
+      console.log(searchResults.result)
+      alert("error")
+    }})
+  }, [page])
 
   const checkDetails = async (id) => {
     console.log(id)
@@ -105,6 +141,28 @@ export default ({
     } else {
       alert("Error, please contact developers")
     }
+  }
+  
+  const next = () => setPage(page+1)
+
+  const prev = () => {
+    if (page > 1) {
+      setPage(page-1)
+    }
+  }
+
+  if (noR) {
+    return (
+      <Container>
+        <SectionDescription tw="mt-20">Sorry, we don't have data for city {lastInput}. Please try another city.</SectionDescription>
+        <HeaderRow>
+          <Actions>
+            <input type="text" placeholder="Your city" value={input} onChange={updateCity}/>
+            <button onClick={searchCity}>Search</button>
+          </Actions>
+        </HeaderRow>
+      </Container>
+    )
   }
 
   return (
@@ -117,10 +175,10 @@ export default ({
           </Actions>
         </HeaderRow>
         <TabContent>
-        {results.map((card, index) => (
+        {results2.map((card, index) => (
           <CardContainer key={index}>
             <Card className="group" initial="rest" whileHover="hover" animate="rest">
-              <CardImageContainer imageSrc={getRandomImages()}>
+              <CardImageContainer imageSrc={images.food_images[card.photo%images.food_images.length]}>
                 <CardRatingContainer>
                   <CardRating>
                     <StarIcon />
@@ -162,28 +220,18 @@ export default ({
       </ContentWithPaddingXl>
       <DecoratorBlob1 />
       <DecoratorBlob2 />
-      {results2.length > 0 &&
+      {/* {results2.length > 0 &&
         <Redirect to={{
           pathname: '/search',
           state: { results: results2 }
         }}/>
-      }
+      } */}
+      <HeadingWithControl>
+        <Controls>
+          <PrevButton onClick={prev}><ChevronLeftIcon/></PrevButton>
+          <NextButton onClick={next}><ChevronRightIcon/></NextButton>
+        </Controls>
+      </HeadingWithControl>
     </Container>
   );
-};
-
-/* This function is only there for demo purposes. It populates placeholder cards */
-const getRandomImages = () => {
-  const images = [
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1582254465498-6bc70419b607?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1565310022184-f23a884f29da?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327??ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-    "https://images.unsplash.com/photo-1473093226795-af9932fe5856?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-  ];
-  // Shuffle array
-  return images[Math.floor(Math.random()*images.length)];
 };

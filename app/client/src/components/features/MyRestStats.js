@@ -8,6 +8,7 @@ import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeartBroken } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { postAddLike, deleteRemoveLike, getIsLike } from "fetcher";
+import images from "helpers/food_images";
 
 
 const Container = tw.div`relative`;
@@ -54,6 +55,16 @@ function Stats(props) {
     })
   }
 
+  let image = images.food_images[0]
+  if (restaurant) {
+    if (restaurant.image) {
+      image = restaurant.image
+    } else {
+      image = images.food_images[restaurant.photo%images.food_images.length]
+    }
+  }
+
+  console.log(image)
   const user_id = window.localStorage.getItem('userId');
 
   useEffect(() => {
@@ -92,7 +103,7 @@ function Stats(props) {
     <Container>
       <TwoColumn>
         <ImageColumn>
-          <Image imageSrc="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80" />
+          <Image imageSrc={image} />
         </ImageColumn>
         <TextColumn>
           <TextContent>

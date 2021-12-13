@@ -39,6 +39,7 @@ export default ({
 }) => {
   const [input, setInput] = useState('')
   const [results, setResults] = useState([])
+  const [noResults, setNoResults] = useState(false)
   // capture text input
   const updateCity = (e) => {
     setInput(e.target.value)
@@ -48,6 +49,9 @@ export default ({
     const searchResults = await getSearchResults(input, category, page, pagesize)
     if (searchResults.status === 200) {
       setResults(searchResults.result.results)
+      if (results.length===0){
+        setNoResults(true)
+      }
     } else {
       alert("error")
     }
@@ -67,7 +71,13 @@ export default ({
           {results.length > 0 &&
             <Redirect to={{
               pathname: '/search',
-              state: { results: results }
+              state: { results: results, input: input, noResult: 0 }
+            }}/>
+          }
+          {noResults &&
+            <Redirect to={{
+              pathname: '/search',
+              state: { results: results, input: input, noResult: 1}
             }}/>
           }
         </Content>

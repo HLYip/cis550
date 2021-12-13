@@ -400,9 +400,25 @@ async function getLikedRest(req, res) {
     } else {
         const user_id = req.query.user_id
         connection.query(`
-        SELECT * FROM Likes
-        NATURAL JOIN Restaurants
-        WHERE user_id='${user_id}'
+        with county_health as (
+            select county, round(avg(pos_pct),2) as average_pos_rate, 
+            max(trans_level) as trans_level,
+            round(avg(vacc_pct),2) as average_vacc_pct
+            from Health 
+            group by county
+            ) ,
+        cur_user as(select * from Likes
+        where user_id = '${user_id}'),
+              Res_county as (
+                  select Z2S.city,Z2S.state,R.business_id,R.name,R.address,
+                  R.zipcode,R.r_lat,R.r_long,R.stars,R.review_count,R.
+                  is_open,R.hours,R.photo,Z2S.county as county 
+                  from Restaurants R 
+                  join Zipcode2State Z2S on R.zipcode = Z2S.zipcode
+           )
+        SELECT * FROM Res_county 
+        join cur_user on Res_county.business_id = cur_user.business_id
+        join county_health on Res_county.county = county_health.county
         `, function(error, results) {
             if (error) {
                 res.status(500).json({ description: error })
