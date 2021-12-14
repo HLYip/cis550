@@ -58,6 +58,7 @@ function DefaultHeader(props) {
     const navLinks2 = [
         defaultNav,
         <NavLinks key={1}>
+          <NavLink>Welcome, {window.localStorage.getItem('username')}</NavLink>
           <NavLink tw="lg:ml-12!" onClick={logout}>
             Logout
           </NavLink>

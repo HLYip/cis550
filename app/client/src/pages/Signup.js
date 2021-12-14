@@ -95,6 +95,7 @@ function Signup(props, {
         if (loginResult.status === 200) {
           window.localStorage.setItem('authenticated', true);
           window.localStorage.setItem('userId', loginResult.result.userId);
+          window.localStorage.setItem('username', loginResult.result.username);
           props.setGlobalState(prevGlobalState => (loginResult.result))
         } 
         setSuccess(true)        
@@ -112,6 +113,7 @@ function Signup(props, {
       refreshTokenSetup(res);
       window.localStorage.setItem('authenticated', true);
       window.localStorage.setItem('userId', res.profileObj.googleId);
+      window.localStorage.setItem('username', res.profileObj.name);
       setSuccess(true)        
     }
   };
@@ -125,6 +127,7 @@ function Signup(props, {
     } else {
       window.localStorage.setItem('authenticated', true);
       window.localStorage.setItem('userId', res.id);
+      window.localStorage.setItem('username', res.name);
       setSuccess(true)        
     }
   };
@@ -157,7 +160,7 @@ function Signup(props, {
                 <Input type="password" placeholder="Password" minLength={6} maxLength={12} onChange={(e)=>setPassword(e.target.value)} value={password} required />
                 <Input type="password" placeholder="Confirm Your Password" minLength={6} maxLength={12} onChange={(e)=>setPassword2(e.target.value)} value={password2} required />
                 <DividerTextContainer />
-                <p tw="text-sm text-gray-600 text-center font-extrabold">
+                {/* <p tw="text-sm text-gray-600 text-center font-extrabold">
                   {prefer_health}
                 </p>
                 <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
@@ -168,7 +171,7 @@ function Signup(props, {
                       onChange={(e)=>setHealth(e.target.checked)} 
                     />
                   <p tw="text-sm text-gray-600 font-extrabold">Yes</p>     
-                </Stack>
+                </Stack> */}
                 <SubmitButton type="submit" onClick={submit}>
                   <SubmitButtonIcon className="icon" />
                   <span className="text">{submitButtonText}</span>

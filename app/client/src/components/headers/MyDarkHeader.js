@@ -39,6 +39,8 @@ function DarkHeader(props, {
       }
     }
 
+    console.log(window.localStorage.getItem('username'))
+
     const defaultNav = (<NavLinks key={0}>
       <NavLink href="/health">Health</NavLink>
       <NavLink href="/explore">Explore</NavLink>
@@ -60,6 +62,7 @@ function DarkHeader(props, {
      const navLinks2 = [
        defaultNav,
         <NavLinks key={1}>
+          <NavLink>Welcome, {window.localStorage.getItem('username')}</NavLink>
           <NavLink tw="lg:ml-12!" onClick={logout}>
             Logout
           </NavLink>
