@@ -181,8 +181,9 @@ Using min-max regularization algorithm to scale the data so that it can be incor
 
 ## 9. Extra Credit
 For extra credits, we implemented these features:
-MongoDB: In addition to SQL, we fetched queries from NoSql database on MongoDB Compass, specifically to retrieve data for two of the line charts on the Restaurant Detail Page 
 
-Google and Twitter Sign In: In addition to User Sign-in register on our website, we also support third-party authentication from Facebook and Google 
+1. MongoDB: In addition to SQL, we fetched queries from NoSql database on MongoDB Compass, specifically to retrieve data for two of the line charts on the Restaurant Detail Page 
 
-Google Map: For each restaurant, in addition to retrieving information through queries, we also implemented a functionable google map that can be toggled/zoomed-in&out and with a marker pointing to the restaurant and showing directions 
+2. Google and Twitter Sign In: In addition to User Sign-in register on our website, we also support third-party authentication from Facebook and Google 
+
+3. Google Map: For each restaurant, in addition to retrieving information through queries, we also implemented a functionable google map that can be toggled/zoomed-in&out and with a marker pointing to the restaurant and showing directions 
