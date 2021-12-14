@@ -6,7 +6,7 @@ const salad = [
   "https://www.cookingclassy.com/wp-content/uploads/2021/06/corn-salad-4.jpg",
   "https://www.acouplecooks.com/wp-content/uploads/2017/10/Apple-Pear-Salad-007.jpg",
   "https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F44%2F2021%2F02%2F04%2Fwatercress-salad-honey-Balsamic-tofu-2000.jpg&q=85",
-  "https://lh3.googleusercontent.com/proxy/UBPEWOI3QiNyyt51024FFLsPvfq7tVY91HtVFu7dHDXC9CYwEFsjk124A7yGhDXdfevOtJdZHw7vWOwjWw4-RQZj3RRnOZ3agZalrSPyZxLGcxhjuMYRXNhswB1xLycYS5p3Vjwzyk37lrbsVQAp3YnUezPP4_LjFQoRYtntUUkp2hHGcXG--eDAXQ"
+  "https://i2.wp.com/www.downshiftology.com/wp-content/uploads/2020/05/Chicken-Salad-3.jpg"
 ]
 
 const sandwiches = [
