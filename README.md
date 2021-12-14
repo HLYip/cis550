@@ -1,6 +1,18 @@
 # [CIS550 Group Project] YYDX:  Treat your life even in pandemic
 Yongxin Xu, Haolin Ye, Mudan Chen, Xiaozhe Yang (Group17)
 
+## 0. How to run locally
+```
+# backend
+cd app/server
+npm install
+npm start 
+
+# frontend
+cd app/client 
+npm install
+npm start
+```
 ## 1. Title
 This web application is named “YYDX”. The name of this application is made up of the abbreviations of the names of our four creators, and the meaning in Chinese is: always do the best. 
 ## 2. Introduction
